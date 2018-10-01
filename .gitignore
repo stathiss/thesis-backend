@@ -1,0 +1,13 @@
+# Intellij
+.idea/
+
+# virtualenv
+.venv
+venv/
+ENV/
+
+# Datasets
+datasets/*
+
+# Locked .xlsx files
+*.xlsx#
