@@ -36,11 +36,11 @@ Run script:
     
 Run the linter that checks for violations of the PEP8 coding style.
     
-    pycodestyle --max-line-length 120 --ignore=E402,E121,E123,E126,E226,E24,E704,W503 sources/code/
+    pycodestyle --max-line-length 120 --ignore=E402,E121,E123,E126,E226,E24,E704,W503 sources/code/ sources/loaders/ sources/preprocessing/
 
 Or you can set a custom command `code_style_check`:
     
-    alias code_style_check='pycodestyle --max-line-length 120 --ignore=E402,E121,E123,E126,E226,E24,E704,W503 sources/code/'
+    alias code_style_check='pycodestyle --max-line-length 120 --ignore=E402,E121,E123,E126,E226,E24,E704,W503 sources/code/ sources/loaders/ sources/preprocessing/'
 
 
 ## Implementation
