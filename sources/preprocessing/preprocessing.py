@@ -19,9 +19,25 @@ def emoji_to_description(word):
         return [word]
 
 
+def spell_check(tweet):
+    words = 0
+    mistakes = 0
+    h = Hunspell()
+    print('spell check')
+    for word in tweet:
+        if word.isalpha() and word.islower():
+            words = words + 1
+            if not h.spell(word) and h.suggest(word):
+                mistakes = mistakes + 1
+                # spell = h.suggest(word)
+                # spell = spell[0].split(' ')
+                # spell = list(map(lambda x: x.lower(), spell))
+                # spell_check.extend(spell)
+    print(words, mistakes, mistakes/float(words) if words != 0 else None)
+
+
 def tweet_tokenizer(task, emotion, label):
     token = Tokenizer(normalize=2)
-    h = Hunspell()
     tweets = parse_dataset(task, emotion, label)[1]
     for tweet in tweets:
         print('tweet:')
@@ -30,24 +46,11 @@ def tweet_tokenizer(task, emotion, label):
         print('tokenizaton:')
         tokens = token.tokenize(tweet)
         print(tokens)
-        spell_check = []
-        print('spell check')
-        for word in tokens:
-            if word.isalpha() and word.islower():
-                if not h.spell(word) and h.suggest(word):
-                    spell = h.suggest(word)
-                    spell = spell[0].split(' ')
-                    spell = list(map(lambda x: x.lower(), spell))
-                    spell_check.extend(spell)
-                else:
-                    spell_check.append(word)
-            else:
-                spell_check.append(word)
-        print(spell_check)
         print('Demojize: ')
         demojize = []
-        for word in spell_check:
+        for word in tokens:
             demojize.extend(emoji_to_description(word))
         print(demojize)
+        spell_check(tokens)
         print('\n')
         print('\n')
