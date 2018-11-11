@@ -10,7 +10,13 @@ def find_file(task, emotion, label):
     label = 'train',
     input_file = 'EI-reg-En-fear-train.txt'
     """
-    input_file = task + '-En-' + emotion + '-' + label + '.txt'
+    if label == 'development':
+        input_file = '2018-' + task + '-En-' + emotion + '-dev' + '.txt'
+    elif label == 'test':
+        input_file = '2018-' + task + '-En-' + emotion + '-test' + '.txt'
+    else:
+        input_file = task + '-En-' + emotion + '-' + label + '.txt'
+
     return input_file
 
 

@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
 from tweetokenize import Tokenizer
+# noinspection PyUnresolvedReferences
 from hunspell import Hunspell
 from sources.loaders.loaders import parse_dataset
 import emoji
+
+
+def tokens_to_sentence(tokens):
+    sentence = u''
+    for token in tokens[:-1]:
+        sentence += token + u' '
+    sentence += tokens[-1]
+    return sentence
 
 
 def split_hashtags(hashtag):
@@ -37,8 +46,10 @@ def spell_check(tweet):
 
 
 def tweet_tokenizer(task, emotion, label):
+    tokenized_tweets = []
     token = Tokenizer(normalize=2)
     tweets = parse_dataset(task, emotion, label)[1]
+    print('length', len(tweets))
     for tweet in tweets:
         print('tweet:')
         tweet = tweet.replace('\\n', '')
@@ -51,6 +62,9 @@ def tweet_tokenizer(task, emotion, label):
         for word in tokens:
             demojize.extend(emoji_to_description(word))
         print(demojize)
-        spell_check(tokens)
-        print('\n')
-        print('\n')
+        tokenized_tweets.append(tokens_to_sentence(demojize))
+    print('Tokenized tweets:')
+
+    print(tokenized_tweets)
+    return tokenized_tweets
+    # spell_check(tokens)
