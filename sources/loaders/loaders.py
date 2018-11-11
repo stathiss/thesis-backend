@@ -13,7 +13,7 @@ def parse_ei_reg(file):
     ids = [x[0] for x in data]
     tweet = [x[1] for x in data]
     emotion = [x[2] for x in data]
-    score = [x[3] for x in data]
+    score = [float(x[3]) if x[3] != 'NONE' else None for x in data]
     fd.close()
     return ids, tweet, emotion, score
 
