@@ -17,7 +17,7 @@ from sources.preprocessing.preprocessing import tweet_tokenizer
 def deepmoji_vector(task, emotion, label):
     np.set_printoptions(threshold=np.nan)
 
-    TEST_SENTENCES = ['@deodevine6 i can\'t bully you and niall impossible', '@BrumSciComm in a danish.  What horror, what depths. #gbbo']
+    TEST_SENTENCES = tweet_tokenizer(task, emotion, label)
     maxlen = 30
     batch_size = 64
 

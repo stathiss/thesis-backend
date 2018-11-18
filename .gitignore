@@ -16,3 +16,7 @@ datasets/*
 
 # Locked .xlsx files
 *.xlsx#
+
+# DeepMoji Feature
+
+sources/features/DeepMoji-master/*
