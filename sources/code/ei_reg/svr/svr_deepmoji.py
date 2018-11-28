@@ -1,17 +1,9 @@
-import time
-import pickle
 from sklearn.svm import SVR
-from sklearn.model_selection import GridSearchCV
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
 from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
 from sources.loaders.loaders import parse_dataset
-import random
-import subprocess
 
 
 def predict():
-
     X = deepmoji_vector('EI-reg', 'sadness', 'train')
     y = parse_dataset('EI-reg', 'sadness', 'train')[3]
     test_input = deepmoji_vector('EI-reg', 'sadness', 'development')
@@ -23,10 +15,7 @@ def predict():
     outF.write('ID\tTweet\tAffect\tDimension\tIntensity Score\n')
     for line in range(len(prediction)):
         # write line to output file
-        outF.write(dev_dataset[0][line] + '\t' + dev_dataset[1][line] + '\t' + dev_dataset[2][line] + '\t' + str(prediction[line]))
+        outF.write(dev_dataset[0][line] + '\t' + dev_dataset[1][line] + '\t'
+                   + dev_dataset[2][line] + '\t' + str(prediction[line]))
         outF.write("\n")
     outF.close()
-
-
-
-
