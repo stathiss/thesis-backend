@@ -1,5 +1,5 @@
-,,,,,,Pearson correlation,,,,Pearson correlation,,
-,,,,,,All instances,,,,"(range 0,5-1)",,
-Features,Regression Method,Variables,Training Set,Test Set,Anger,Fear,Joy,Sadness,Anger,Fear,Joy,Sadness
-DeepMoji,SVR,"kernel=rbf, c=10, gamma = 0.0001, epsilon=0.05",Training Set,Development Set,"0,734","0,581","0,731","0,641","0,511","0,452","0,613","0,487"
-,,,,,,, ,,,,,
+,,,,,,Pearson correlation,,,,,Pearson correlation,,
+,,,,,,All instances,,,,,"(range 0,5-1)",,
+Features,Regression Method,Variables,Training Set,Test Set,Anger,Fear,Joy,Sadness,********,Anger,Fear,Joy,Sadness
+DeepMoji,SVR,"kernel=rbf, c=10, gamma = 0.0001, epsilon=0.05",Training Set,Development Set,"0,734","0,581","0,731","0,641",********,"0,511","0,452","0,613","0,487"
+DeepMoji,Random Forest Regressor,"Bootstrap=True,max_depth=10max_features=sqrt,min_samples_leaf=4,min_samples_split=2, n_estimators=600 ",Training Set,Development Set,"0,75","0,591","0,754","0,665",********,"0,648","0,406","0,501","0,519"
