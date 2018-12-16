@@ -51,20 +51,26 @@ def tweet_tokenizer(task, emotion, label):
     tweets = parse_dataset(task, emotion, label)[1]
     print('length', len(tweets))
     for tweet in tweets:
-        print('tweet:')
         tweet = tweet.replace('\\n', '')
-        print(tweet)
-        print('tokenizaton:')
         tokens = token.tokenize(tweet)
-        print(tokens)
-        print('Demojize: ')
         demojize = []
         for word in tokens:
             demojize.extend(emoji_to_description(word))
-        print(demojize)
         tokenized_tweets.append(tokens_to_sentence(demojize))
-    print('Tokenized tweets:')
-
-    print(tokenized_tweets)
     return tokenized_tweets
-    # spell_check(tokens)
+
+
+def tweet_tokenizer_words(task, emotion, label):
+    tokenized_tweets = []
+    token = Tokenizer(normalize=2)
+    tweets = parse_dataset(task, emotion, label)[1]
+    print('length', len(tweets))
+    for tweet in tweets:
+        tweet = tweet.replace('\\n', '')
+        tokens = token.tokenize(tweet)
+        demojize = []
+        for word in tokens:
+            demojize.extend(emoji_to_description(word))
+        tokenized_tweets.append(demojize)
+
+    return tokenized_tweets

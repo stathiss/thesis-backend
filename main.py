@@ -1,7 +1,4 @@
-from sources.utils import get_pearson_correlation
-from sources.code.ei_reg.bi_lstm.bi_lstm_deepmoji import predict
+from sources.code.ei_reg.my_word2vec_lstm.my_word2vec_lstm import dl_model
 
-predict()
-# read_test()
-# deepmoji_vector()
-# deepmoji_vector()
+dl_model('sadness')
+
