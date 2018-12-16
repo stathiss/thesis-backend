@@ -2,7 +2,6 @@
 __pycache__/
 *.pyc
 
-
 # Intellij
 .idea/
 
@@ -18,5 +17,10 @@ datasets/*
 *.xlsx#
 
 # DeepMoji Feature
-
 sources/features/DeepMoji-master/*
+
+# Dumps
+dumps/*
+
+# Pretrained Vectors
+sources/features/pretrained_vectors/*
