@@ -28,8 +28,8 @@ def write_predictions(file_name, dataset, prediction):
     out_file.close()
 
 
-def predictions_of_file(file):
-    with open(file, 'r') as fd:
+def predictions_of_file(my_file):
+    with open(my_file, 'r') as fd:
         data = fd.readlines()
     data = [x.strip() for x in data][1:]
     data = [x.split('\t') for x in data]

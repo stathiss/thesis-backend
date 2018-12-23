@@ -16,7 +16,7 @@ def tokens_to_sentence(tokens):
 
 def split_hashtags(hashtag):
     if hashtag[0] == '#':
-        hashtag = hashtag[1:]
+        hashtag = hashtag[1:].lower()
         return hashtag.split('_')
     return [hashtag]
 
@@ -53,8 +53,11 @@ def tweet_tokenizer(task, emotion, label):
     for tweet in tweets:
         tweet = tweet.replace('\\n', '')
         tokens = token.tokenize(tweet)
-        demojize = []
+        dehashtag = []
         for word in tokens:
+            dehashtag.extend(split_hashtags(word))
+        demojize = []
+        for word in dehashtag:
             demojize.extend(emoji_to_description(word))
         tokenized_tweets.append(tokens_to_sentence(demojize))
     return tokenized_tweets
