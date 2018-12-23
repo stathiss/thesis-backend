@@ -3,22 +3,26 @@ import numpy as np
 import logging
 import sys
 import multiprocessing
-import pickle
+
+# NumPy Imports
+from numpy import array
+from numpy import zeros
 
 # Gensim and nltk inputs
-from gensim.models import Word2Vec
+from gensim.models.keyedvectors import KeyedVectors
 from gensim.corpora.dictionary import Dictionary
 
 # Shuffle
 from random import shuffle
 
 # TensorFlow inputs
-from keras.preprocessing import sequence
 from keras.models import Sequential
 from keras.layers.embeddings import Embedding
 from keras.initializers import Constant
 from keras.layers.recurrent import LSTM
 from keras.layers.core import Dense, Dropout
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 import tensorflow as tf
 
 # My code inputs
@@ -40,7 +44,9 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 vocab_dim = 118717
-maxlen = 100
+num_words = 20000
+pad_words = 65
+maxlen = 300
 window_size = 12
 batch_size = 32
 n_epoch = 50
@@ -107,67 +113,52 @@ def create_dictionaries(train=None, test=None, model=None):
         print('No data provided...')
 
 
-def my_word2vec_model(emotion):
+def google_word2vec_model(emotion):
+
+    print('Load data...')
     X_train = tweet_tokenizer('EI-reg', emotion, 'train')
-    with open('dumps/tweet_tokenizer_' + emotion + '_train', 'wb') as fp:
-        pickle.dump(X_train, fp)
-    y_train = parse_dataset('EI-reg', emotion, 'train')[3]
-
+    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
     X_test = tweet_tokenizer('EI-reg', emotion, 'development')
-    with open('dumps/tweet_tokenizer_' + emotion + '_dev', 'wb') as fp:
-        pickle.dump(X_test, fp)
-    y_test = parse_dataset('EI-reg', emotion, 'development')[3]
-
+    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
     dev_dataset = parse_dataset('EI-reg', emotion, 'development')
-    print('Loading Data...')
-    train, test = import_tag(datasets={'train': X_train, 'test': X_test})
-    combined = train.values() + test.values()
 
     print('Tokenising...')
-    combined = tokenizer(combined)
+    t = Tokenizer(num_words=num_words, lower=True)
+    t.fit_on_texts(X_train + X_test)
+    vocab_size = len(t.word_counts) + 1
 
-    # print combined
+    print('Integer encoding...')
+    encoded_train = t.texts_to_sequences(X_train)
+    encoded_dev = t.texts_to_sequences(X_test)
+    print(encoded_dev)
+    print(encoded_train)
 
-    print('Training a Word2vec model...')
-    model = Word2Vec(size=maxlen,
-                     window=window_size,
-                     workers=cpu_count,
-                     min_count=0)
+    print('Padding documents in length of {} words...'.format(pad_words))
+    padded_train = pad_sequences(encoded_train, maxlen=pad_words)
+    padded_dev = pad_sequences(encoded_dev, maxlen=pad_words)
 
-    model.build_vocab(combined)
+    print('Load pretrained GooGle Word2vec model...')
+    word_vectors = KeyedVectors.load_word2vec_format('sources/features/pretrained_vectors/GoogleNews-vectors-negative300.bin', binary=True)
 
-    for epoch in range(100):
-        log.info('EPOCH: {}'.format(epoch))
-        model.train(sentences_perm(combined), total_examples=model.corpus_count, epochs=model.epochs)
+    vocabulary_size = min(len(t.word_index) + 1, num_words)
+    embedding_matrix = np.zeros((vocabulary_size, maxlen))
+    for word, i in t.word_index.items():
+        if i >= num_words:
+            continue
+        try:
+            embedding_vector = word_vectors[word]
+            embedding_matrix[i] = embedding_vector
+        except KeyError:
+            embedding_matrix[i] = np.random.normal(0, np.sqrt(0.25), maxlen)
 
-    print('Transform the Data...')
-    index_dict, word_vectors, train, test = create_dictionaries(train=train,
-                                                                test=test,
-                                                                model=model)
-    print('Setting up Arrays for Keras Embedding Layer...')
-    n_symbols = len(index_dict) + 1  # adding 1 to account for 0th index
-    embedding_weights = np.zeros((n_symbols, maxlen))
-    for word, index in index_dict.items():
-        embedding_weights[index, :] = word_vectors[word]
-    print('Creating Datesets...')
-    X_train = train.values()
-    X_test = test.values()
-    print("Pad sequences (samples x time)")
-    X_train = sequence.pad_sequences(X_train, maxlen=maxlen)
-    X_test = sequence.pad_sequences(X_test, maxlen=maxlen)
-    print('X_train shape:', X_train.shape)
-    print('X_test shape:', X_test.shape)
-
-    print('Convert labels to Numpy Sets...')
-    y_train = np.array(y_train)
-    y_test = np.array(y_test)
+    del (word_vectors)
 
     print('Defining a Simple Keras Model...')
     lstm_model = Sequential()  # or Graph
     lstm_model.add(Embedding(output_dim=maxlen,
-                             input_dim=n_symbols,
+                             input_dim=vocab_size,
                              mask_zero=True,
-                             embeddings_initializer=Constant(embedding_weights),
+                             embeddings_initializer=Constant(embedding_matrix),
                              input_length=input_length))  # Adding Input Length
     lstm_model.add(LSTM(maxlen))
     lstm_model.add(Dropout(0.3))
@@ -182,9 +173,7 @@ def my_word2vec_model(emotion):
     lstm_model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
 
     # Compile the network :
-
     print('Compiling the Model...')
-    optimizer = tf.train.RMSPropOptimizer(0.001)
 
     lstm_model.compile(loss='mse',
                        optimizer='adam',

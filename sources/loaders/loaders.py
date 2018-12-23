@@ -1,12 +1,12 @@
 from sources.loaders.files import find_path
 
 
-def parse_ei_reg(file):
+def parse_ei_reg(my_file):
     """
-    :param file:
+    :param my_file:
     :return: ids, tweets, emotion and score of EI-reg given file
     """
-    with open(file, 'r') as fd:
+    with open(my_file, 'r') as fd:
         data = fd.readlines()
     data = [x.strip() for x in data][1:]
     data = [x.split('\t') for x in data]
@@ -18,7 +18,7 @@ def parse_ei_reg(file):
     return ids, tweet, emotion, score
 
 
-def parse_ei_oc(file):
+def parse_ei_oc(my_file):
     """
     :param file:
     :return: ids, tweets, emotion and score of EI-oc given file
@@ -30,7 +30,7 @@ def parse_ei_oc(file):
     return ids, tweet, emotion, score
 
 
-def parse_e_c(file):
+def parse_e_c(my_file):
     """
     :param file:
     :return: ids, tweets, emotion and score of E-c given file
@@ -43,14 +43,16 @@ def parse_e_c(file):
 
 
 def parse_dataset(task, emotion, label):
-    file = find_path(task, emotion, label)
+    my_file = find_path(task, emotion, label)
     if task == 'EI-reg':
-        print(file)
-        ids, tweet, emotion, score = parse_ei_reg(file)
+        print(my_file)
+        ids, tweet, emotion, score = parse_ei_reg(my_file)
     elif task == 'EI-oc':
-        ids, tweet, emotion, score = parse_ei_oc(file)
+        print(my_file)
+        ids, tweet, emotion, score = parse_ei_oc(my_file)
     elif task == 'E-c':
-        ids, tweet, emotion, score = parse_e_c(file)
+        print(my_file)
+        ids, tweet, emotion, score = parse_e_c(my_file)
     else:
         raise ValueError('Oopsie! It seems like you inserted something wrong')
 
