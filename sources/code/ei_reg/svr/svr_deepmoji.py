@@ -1,21 +1,21 @@
 from sklearn.svm import SVR
 from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
 from sources.loaders.loaders import parse_dataset
+from sources.utils import get_pearson_correlation, write_predictions
 
 
-def predict():
-    X = deepmoji_vector('EI-reg', 'sadness', 'train')
-    y = parse_dataset('EI-reg', 'sadness', 'train')[3]
-    test_input = deepmoji_vector('EI-reg', 'sadness', 'development')
-    dev_dataset = parse_dataset('EI-reg', 'sadness', 'development')
+def predict_svr_deepmoji(emotion):
+    X = deepmoji_vector('EI-reg', emotion, 'train_and_dev')
+    y = parse_dataset('EI-reg', emotion, 'train_and_dev')[3]
+    test_input = deepmoji_vector('EI-reg', emotion, 'gold-no-mystery')
+    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
     clf = SVR(kernel='rbf', C=10, gamma=0.0001, epsilon=0.05)
     clf.fit(X, y)
-    prediction = clf.predict(test_input)
-    outF = open("./dumps/EI-reg_en_sadness_pred_dev.txt", "w")
-    outF.write('ID\tTweet\tAffect\tDimension\tIntensity Score\n')
-    for line in range(len(prediction)):
-        # write line to output file
-        outF.write(dev_dataset[0][line] + '\t' + dev_dataset[1][line] + '\t'
-                   + dev_dataset[2][line] + '\t' + str(prediction[line]))
-        outF.write("\n")
-    outF.close()
+    predictions = clf.predict(test_input)
+    file_name = "./dumps/EI-reg_en_" + emotion + "_test_svr.txt"
+    write_predictions(file_name, dev_dataset, predictions)
+    print(file_name)
+    print(get_pearson_correlation(
+        '1',
+        file_name,
+        'datasets/gold-labels/EI-reg/2018-EI-reg-En-' + emotion + '-test-gold-no-mystery.txt'))
