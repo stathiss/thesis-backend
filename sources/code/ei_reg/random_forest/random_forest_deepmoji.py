@@ -5,7 +5,7 @@ from sources.utils import get_pearson_correlation, write_predictions
 import pickle
 
 
-def predict(emotion):
+def predict_random_forest__deepmoji(emotion):
     bootstrap = True
     max_depth = 10
     max_features = 'sqrt'
@@ -13,17 +13,15 @@ def predict(emotion):
     min_samples_split = 2
     n_estimators = 600
 
-    X = deepmoji_vector('EI-reg', emotion, 'train')
+    X = deepmoji_vector('EI-reg', emotion, 'train_and_dev')
     with open('dumps/deepmoji_vector_' + emotion + '_train', 'wb') as fp:
         pickle.dump(X, fp)
-    y = parse_dataset('EI-reg', emotion, 'train')[3]
+    y = parse_dataset('EI-reg', emotion, 'train_and_dev')[3]
 
-    test_input = deepmoji_vector('EI-reg', emotion, 'development')
+    test_input = deepmoji_vector('EI-reg', emotion, 'gold-no-mystery')
     with open('dumps/deepmoji_vector_' + emotion + '_dev', 'wb') as fp:
         pickle.dump(test_input, fp)
-    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
-    max_score = 0
-    max_variables = ''
+    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
     clf = RandomForestRegressor(bootstrap=bootstrap,
                                 max_depth=max_depth,
                                 max_features=max_features,
@@ -31,23 +29,11 @@ def predict(emotion):
                                 min_samples_split=min_samples_split,
                                 n_estimators=n_estimators)
     clf.fit(X, y)
-    prediction = clf.predict(test_input)
-    file_name = './dumps/EI-reg_en_' + emotion + '_pred_dev_random_forest_' +\
-                str(max_depth) + '_' +\
-                str(max_features) + '_' +\
-                str(min_samples_leaf) + '_' +\
-                str(min_samples_split) + '_' +\
-                str(n_estimators) + '_' + '.txt'
-    write_predictions(file_name, dev_dataset, prediction)
+    predictions = clf.predict(test_input)
+    file_name = "./dumps/EI-reg_en_" + emotion + "_test_random_forest.txt"
+    write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name,
-                                  'datasets/EI-reg/development_set/2018-EI-reg-En-' + emotion + '-dev.txt'))
-    print(' ')
-    if get_pearson_correlation('1', file_name,
-                               'datasets/EI-reg/development_set/2018-EI-reg-En-' + emotion + '-dev.txt')[0] > max_score:
-        max_score = get_pearson_correlation('1', file_name,
-                                            'datasets/EI-reg/development_set/2018-EI-reg-En-' + emotion + '-dev.txt')[0]
-        max_variables = file_name
-    print('MAAAAAAAAAAAAAAAXXXX')
-    print(max_score)
-    print(max_variables)
+    print(get_pearson_correlation(
+        '1',
+        file_name,
+        'datasets/gold-labels/EI-reg/2018-EI-reg-En-' + emotion + '-test-gold-no-mystery.txt'))

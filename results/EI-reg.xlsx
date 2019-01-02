@@ -1,7 +1,0 @@
-,,,,,,,Pearson correlation,,,,,,Pearson correlation,,,
-,,,,,,,All instances,,,,,,"(range 0,5-1)",,,
-MachineLearning / DeepLearning,Features,Regression Method,Variables,Training Set,Test Set,Anger,Fear,Joy,Sadness,Avg,********,Anger,Fear,Joy,Sadness,Avg
-,,,,,,,,,,,,,,,,
-ML,DeepMoji,SVR,"kernel=rbf, c=10, gamma = 0.0001, epsilon=0.05",Training Set,Development Set,"0,734","0,581","0,731","0,641","0,67175",********,"0,511","0,452","0,613","0,487","0,51575"
-ML,DeepMoji,Random Forest Regressor,"Bootstrap=True,max_depth=10max_features=sqrt,min_samples_leaf=4,min_samples_split=2, n_estimators=600 ",Training Set,Development Set,"0,75","0,591","0,754","0,665","0,69",********,"0,648","0,406","0,501","0,519","0,5185"
-DL,Word2Vec,LSTM,"Embeddings=my_trained_embeddings, Dropout=0.3, Dense(128->256->256->256, kernel_initializer='normal', activation='linear'), Dense(1, kernel_initializer='normal', activation='(linear for anger fear, relu for joy)'), RMSPropOptimizer(0.001), loss=’mse’, epochs = 100, maxlen = 100",Training Set,Development Set,"0,427","0,438","0,472","0,467","0,451",********,"0,276","0,382","0,299","0,389","0,3365"

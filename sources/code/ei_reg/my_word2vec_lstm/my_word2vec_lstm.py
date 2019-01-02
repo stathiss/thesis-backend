@@ -24,7 +24,7 @@ import tensorflow as tf
 # My code inputs
 from sources.loaders.loaders import parse_dataset
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions
+from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
 
 
 np.random.seed(1500)  # For Reproducibility
@@ -186,7 +186,7 @@ def my_word2vec_model(emotion):
     print('Compiling the Model...')
     optimizer = tf.train.RMSPropOptimizer(0.001)
 
-    lstm_model.compile(loss='mse',
+    lstm_model.compile(loss=pearson_correlation_loss,
                        optimizer='adam',
                        metrics=['mae'])
 
@@ -197,7 +197,7 @@ def my_word2vec_model(emotion):
     lstm_model.fit(X_train, y_train,
                    batch_size=32,
                    epochs=n_epoch,
-                   validation_split=0.2,
+                   validation_split=0.1,
                    validation_data=(X_test, y_test))
 
     print("Evaluate...")

@@ -14,6 +14,8 @@ def find_file(task, emotion, label):
         input_file = '2018-' + task + '-En-' + emotion + '-dev' + '.txt'
     elif label == 'test':
         input_file = '2018-' + task + '-En-' + emotion + '-test' + '.txt'
+    elif label == 'gold' or label == 'gold-no-mystery':
+        input_file = '2018-' + task + '-En-' + emotion + '-test-' + label + '.txt'
     else:
         input_file = task + '-En-' + emotion + '-' + label + '.txt'
 
@@ -29,7 +31,10 @@ def find_path(task, emotion, label):
     label = 'training'
     input_path = 'datasets/EI-reg/training_set/EI-reg-En-fear-train.txt'
     """
-    if label == 'train':
+    if label == 'gold' or label == 'gold-no-mystery':
+        input_path = config.DATA_DIR + '/gold-labels/' + task + '/' + find_file(task, emotion, label)
+        return input_path
+    elif label == 'train':
         label_ing = 'training'
     else:
         label_ing = label

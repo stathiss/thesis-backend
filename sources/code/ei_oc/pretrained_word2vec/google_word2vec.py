@@ -138,7 +138,8 @@ def google_word2vec_model(emotion):
     padded_dev = pad_sequences(encoded_dev, maxlen=pad_words)
 
     print('Load pretrained GooGle Word2vec model...')
-    word_vectors = KeyedVectors.load_word2vec_format('sources/features/pretrained_vectors/GoogleNews-vectors-negative300.bin', binary=True)
+    word_vectors = KeyedVectors.load_word2vec_format(
+        'sources/features/pretrained_vectors/GoogleNews-vectors-negative300.bin', binary=True)
 
     vocabulary_size = min(len(t.word_index) + 1, num_words)
     embedding_matrix = np.zeros((vocabulary_size, maxlen))

@@ -7,9 +7,11 @@ import numpy
 from numpy import array
 from numpy import asarray
 from numpy import zeros
+
+# TensorFlow and Keras inputs
+import keras
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-# TensorFlow inputs
 from keras.models import Sequential
 from keras.layers.embeddings import Embedding
 from keras.initializers import Constant
@@ -18,7 +20,7 @@ from keras.layers import Bidirectional, Dense, Dropout, LSTM
 # My code inputs
 from sources.loaders.loaders import parse_dataset
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions
+from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
 
 from keras import backend as K
 
@@ -33,7 +35,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-maxlen = 300
+maxlen = 100
 pad_words = 65
 n_epoch = 25
 input_length = 100
@@ -45,28 +47,14 @@ cpu_count = multiprocessing.cpu_count()
 log.info('source load')
 
 
-def pearson_correlation_loss(y_true, y_pred):
-    x = y_true
-    y = y_pred
-    mx = K.mean(x)
-    my = K.mean(y)
-    xm, ym = x-mx, y-my
-    r_num = K.sum(tf.multiply(xm, ym))
-    r_den = K.sqrt(tf.multiply(K.sum(K.square(xm)), K.sum(K.square(ym))))
-    r = r_num / r_den
-
-    r = K.maximum(K.minimum(r, 1.0), -1.0)
-    return -r
-
-
 def glove_model(emotion):
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'development')
-    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
+    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
+    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
+    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
+    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
+    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
 
     print('Tokenising...')
     t = Tokenizer()
@@ -76,13 +64,10 @@ def glove_model(emotion):
     print('Integer encoding...')
     encoded_train = t.texts_to_sequences(X_train)
     encoded_dev = t.texts_to_sequences(X_test)
-    print(encoded_dev)
-    print(encoded_train)
 
     print('Padding documents in length of {} words...'.format(pad_words))
     padded_train = pad_sequences(encoded_train, maxlen=pad_words)
     padded_dev = pad_sequences(encoded_dev, maxlen=pad_words)
-    print(padded_train)
 
     print('Load pretrained data')
     embeddings_index = dict()
@@ -108,7 +93,7 @@ def glove_model(emotion):
     model_glove.add(Embedding(output_dim=maxlen,
                               input_dim=vocab_size,
                               mask_zero=True,
-                              input_length=pad_words
+                              input_length=pad_words,
                               ))  # Adding Input Length
     model_glove.layers[0].set_weights([embedding_matrix])
     model_glove.add(Bidirectional(LSTM(300)))
@@ -143,17 +128,16 @@ def glove_model(emotion):
 
     print("Evaluate...")
     score = model_glove.evaluate(padded_dev, y_test, batch_size=batch_size)
-    print('Test score:', score)
+    print('Test score:', (score[0] - 1) * (-1), score[1])
 
     predictions = model_glove.predict(padded_dev)
 
     print('Pearson Correlation...')
-    print(predictions)
     predictions = [prediction[0] for prediction in predictions]
-    print(predictions)
-    file_name = './dumps/EI-reg_en_' + emotion + '_deep_learning_.txt'
+    file_name = './dumps/EI-reg_en_' + emotion + '_test_glove_vectors_' + str(maxlen) + '.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1',
-                                  file_name,
-                                  'datasets/EI-reg/development_set/2018-EI-reg-En-' + emotion + '-dev.txt'))
+    print(get_pearson_correlation(
+        '1',
+        file_name,
+        'datasets/gold-labels/EI-reg/2018-EI-reg-En-' + emotion + '-test-gold-no-mystery.txt'))
