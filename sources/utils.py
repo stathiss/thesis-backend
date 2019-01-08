@@ -1,3 +1,4 @@
+import csv
 import subprocess
 import tensorflow as tf
 from sources.loaders.loaders import parse_dataset
@@ -169,3 +170,30 @@ class Attention(Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape[0],  self.features_dim
+
+
+def read_vectors_from_csv(my_file):
+    return_list = []
+    return_list_values = []
+    with open(my_file, 'rU') as f:  # opens PW file
+        reader = csv.reader(f, quotechar="'")
+        for row in reader:
+            return_list.append(row)
+        for line in return_list[1:]:
+            return_list_values.append(map(float, line[3:]))
+        return return_list_values
+
+
+def run_lexicon_vectors(my_file):
+    _ = subprocess.Popen(['java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
+                          'weka.filters.unsupervised.attribute.TweetToLexiconFeatureVector', '-F', '-D', '-R',
+                          '-A', '-T', '-L', '-N', '-P', '-J', '-H', '-Q', '-stemmer',
+                          'weka.core.stemmers.NullStemmer', '-stopwords-handler', 'weka.core.stopwords.Null',
+                          '-U', '-I', '2', '-tokenizer', 'weka.core.tokenizers.TweetNLPTokenizer', '-i',
+                          my_file, '-o', 'output.arff'],
+                         stdout=subprocess.PIPE).communicate()[0]
+    _ = subprocess.Popen(['java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
+                          'weka.core.converters.CSVSaver', '-i', 'output.arff', '-o', 'output.csv'],
+                         stdout=subprocess.PIPE).communicate()[0]
+
+    return
