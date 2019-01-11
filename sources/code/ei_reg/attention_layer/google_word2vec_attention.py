@@ -23,6 +23,7 @@ from keras.preprocessing.sequence import pad_sequences
 
 # My code inputs
 from sources.loaders.loaders import parse_dataset
+from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
 from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss, Attention
 
@@ -139,7 +140,4 @@ def google_word2vec_attention_model(emotion):
     file_name = './dumps/EI-reg_en_' + emotion + '_dev_google_attention_vectors.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation(
-        '1',
-        file_name,
-        'datasets/EI-reg/development_set/2018-EI-reg-En-' + emotion + '-dev.txt'))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))

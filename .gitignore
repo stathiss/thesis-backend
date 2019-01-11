@@ -27,3 +27,7 @@ dumps/*
 
 # Pretrained Vectors
 sources/features/pretrained_vectors/*
+
+# Java outputs
+output.arff
+output.csv
