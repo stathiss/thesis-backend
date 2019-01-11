@@ -1,28 +1,24 @@
-import pickle
 import multiprocessing
 import logging
 import sys
-import tensorflow as tf
 import numpy
 from numpy import array
 from numpy import asarray
 from numpy import zeros
 
 # TensorFlow and Keras inputs
-import keras
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers.embeddings import Embedding
-from keras.initializers import Constant
 from keras.layers import Bidirectional, Dense, Dropout, LSTM
 
 # My code inputs
 from sources.loaders.loaders import parse_dataset
+from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
 from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
 
-from keras import backend as K
 
 numpy.random.seed(1500)  # For Reproducibility
 log = logging.getLogger()
@@ -50,11 +46,11 @@ log.info('source load')
 def glove_model(emotion):
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
-    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
+    X_train = tweet_tokenizer('EI-reg', emotion, 'train')
+    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
+    X_test = tweet_tokenizer('EI-reg', emotion, 'development')
+    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
+    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
 
     print('Tokenising...')
     t = Tokenizer()
@@ -137,7 +133,4 @@ def glove_model(emotion):
     file_name = './dumps/EI-reg_en_' + emotion + '_test_glove_vectors_' + str(maxlen) + '.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation(
-        '1',
-        file_name,
-        'datasets/gold-labels/EI-reg/2018-EI-reg-En-' + emotion + '-test-gold-no-mystery.txt'))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))

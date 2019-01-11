@@ -1,0 +1,7 @@
+1. # words
+2. # letters
+3. # emojis
+4. # continuous letters (eg loooooove)
+5. # punctuation mark
+6. # syntax errors
+

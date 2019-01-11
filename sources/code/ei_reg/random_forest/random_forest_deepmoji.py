@@ -1,6 +1,7 @@
 from sklearn.ensemble import RandomForestRegressor
 from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
 from sources.loaders.loaders import parse_dataset
+from sources.loaders.files import find_path
 from sources.utils import get_pearson_correlation, write_predictions
 import pickle
 
@@ -13,7 +14,7 @@ def predict_random_forest__deepmoji(emotion):
     min_samples_split = 2
     n_estimators = 600
 
-    X = deepmoji_vector('EI-reg', emotion, 'train_and_dev')
+    X = deepmoji_vector('EI-reg', emotion, 'train')
     with open('dumps/deepmoji_vector_' + emotion + '_train', 'wb') as fp:
         pickle.dump(X, fp)
     y = parse_dataset('EI-reg', emotion, 'train_and_dev')[3]
@@ -33,7 +34,4 @@ def predict_random_forest__deepmoji(emotion):
     file_name = "./dumps/EI-reg_en_" + emotion + "_test_random_forest.txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation(
-        '1',
-        file_name,
-        'datasets/gold-labels/EI-reg/2018-EI-reg-En-' + emotion + '-test-gold-no-mystery.txt'))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))
