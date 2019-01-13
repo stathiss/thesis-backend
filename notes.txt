@@ -10,7 +10,7 @@ Deep Learning LSTM with attention layer and google embeddings ✔
 
 Deep Learning LSTM with attention layer and glove embeddings ✘
 Deep Learning LSTM with attention layer and my embeddings ✘
-Features from Lexicons (Affective tweets package) ✘	
+Features from Lexicons (Affective tweets package) ✔
 Feature Extraction ✘
 Ensemble predictions with specified weights ✘
 Ensemble predictions with genetic algorithm ✘

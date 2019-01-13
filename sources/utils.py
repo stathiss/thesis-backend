@@ -7,6 +7,14 @@ from keras.engine.topology import Layer
 from keras import initializers, regularizers, constraints
 import os
 
+
+def string_to_float_or_int(a):
+    if float(a) == int(float(a)):
+        return int(float(a))
+    else:
+        return float(a)
+
+
 def get_pearson_correlation(task_type, prediction_file, gold_file):
     """
     task_type:
@@ -181,40 +189,26 @@ def read_vectors_from_csv(my_file):
         for row in reader:
             return_list.append(row)
         for line in return_list[1:]:
-            return_list_values.append(map(float, line[4:]))
+            return_list_values.append(map(string_to_float_or_int, line[4:]))
         return return_list_values
 
 
 def run_lexicon_vectors(my_file):
-    """
-    _ = subprocess.Popen([
-        'java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
-        'weka.filters.MultiFilter', '-F',
-        '"weka.filters.unsupervised.attribute.TweetToInputLexiconFeatureVector', '-lexicon_evaluator',
-        '\\"affective.core.ArffLexiconEvaluator', '-lexiconFile',
-        '/home/george/wekafiles/packages/AffectiveTweets/lexicons/arff_lexicons/NRC-AffectIntensity-Lexicon.arff', '-B',
-        'NRC-Affect-Intensity', '-A', '1', '-lex-stemmer', 'weka.core.stemmers.NullStemmer\\"',
-        '-stemmer weka.core.stemmers.NullStemmer', '-stopwords-handler', '\\"weka.core.stopwords.Null\\"', '-I', '2',
-        '-U', '-tokenizer', '\\"weka.core.tokenizers.TweetNLPTokenizer\\""', '-F',
-        '"weka.filters.unsupervised.attribute.TweetToLexiconFeatureVector', '-F', '-D', '-R', '-A', '-T', '-L', '-N',
-        '-P', '-J', '-H', '-Q', '-stemmer', 'weka.core.stemmers.NullStemmer', '-stopwords-handler',
-        '\\"weka.core.stopwords.Null\\"', '-I', '2', '-U', '-tokenizer', '\\"weka.core.tokenizers.TweetNLPTokenizer\\""',
-        '-F', '"weka.filters.unsupervised.attribute.TweetToSentiStrengthFeatureVector', '-L',
-        '/home/george/wekafiles/packages/AffectiveTweets/lexicons/SentiStrength/english',
-        '-stemmer', 'weka.core.stemmers.NullStemmer', '-stopwords-handler', '\\"weka.core.stopwords.Null\\"', '-I', '2',
-        '-U', '-tokenizer', '\\"weka.core.tokenizers.TweetNLPTokenizer\\""', '-i',
-        './datasets/EI-reg/training_set/arff/EI-reg-En-anger-train.arff'],
-                         stdout=subprocess.PIPE).communicate()[0]
+    cmd = 'java -Xmx4G -cp ./sources/features/weka/weka/weka.jar weka.Run weka.filters.MultiFilter -F ' \
+          '"weka.filters.unsupervised.attribute.TweetToInputLexiconFeatureVector -lexicon_evaluator \\" ' \
+          'affective.core.ArffLexiconEvaluator -lexiconFile ' \
+          '/home/george/wekafiles/packages/AffectiveTweets/lexicons/arff_lexicons/NRC-AffectIntensity-Lexicon.arff ' \
+          '-B NRC-Affect-Intensity -A 1 -lex-stemmer weka.core.stemmers.NullStemmer \\" ' \
+          '-stemmer weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U ' \
+          '-tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer \\"" -F ' \
+          '"weka.filters.unsupervised.attribute.TweetToLexiconFeatureVector -F -D -R -A -T -L -N -P -J -H -Q ' \
+          '-stemmer weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U ' \
+          '-tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer \\"" ' \
+          '-F "weka.filters.unsupervised.attribute.TweetToSentiStrengthFeatureVector ' \
+          '-L /home/george/wekafiles/packages/AffectiveTweets/lexicons/SentiStrength/english -stemmer ' \
+          'weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U ' \
+          '-tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer\\"" -i ' + my_file + ' -o output.arff'  # noqa
 
-    _ = subprocess.Popen(['java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
-                          'weka.filters.unsupervised.attribute.TweetToLexiconFeatureVector', '-F', '-D', '-R',
-                          '-A', '-T', '-L', '-N', '-P', '-J', '-H', '-Q', '-stemmer',
-                          'weka.core.stemmers.NullStemmer', '-stopwords-handler', 'weka.core.stopwords.Null',
-                          '-U', '-I', '2', '-tokenizer', 'weka.core.tokenizers.TweetNLPTokenizer', '-i',
-                          my_file, '-o', 'output.arff'],
-                         stdout=subprocess.PIPE).communicate()[0]
-    """
-    cmd = 'java -Xmx4G -cp ./sources/features/weka/weka/weka.jar weka.Run weka.filters.MultiFilter -F "weka.filters.unsupervised.attribute.TweetToInputLexiconFeatureVector -lexicon_evaluator \\" affective.core.ArffLexiconEvaluator -lexiconFile /home/george/wekafiles/packages/AffectiveTweets/lexicons/arff_lexicons/NRC-AffectIntensity-Lexicon.arff -B NRC-Affect-Intensity -A 1 -lex-stemmer weka.core.stemmers.NullStemmer \\" -stemmer weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U -tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer \\"" -F "weka.filters.unsupervised.attribute.TweetToLexiconFeatureVector -F -D -R -A -T -L -N -P -J -H -Q -stemmer weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U -tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer \\"" -F "weka.filters.unsupervised.attribute.TweetToSentiStrengthFeatureVector -L /home/george/wekafiles/packages/AffectiveTweets/lexicons/SentiStrength/english -stemmer weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U -tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer\\"" -i ' + my_file + ' -o output.arff'  # noqa
     os.system(cmd)
     _ = subprocess.Popen(['java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
                           'weka.core.converters.CSVSaver', '-i', 'output.arff', '-o', 'output.csv'],
