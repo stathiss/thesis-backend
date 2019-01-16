@@ -1,7 +1,7 @@
 1. # letters
 2. # words
 3. # emojis
-4. # continuous letters (eg loooooove)
+4. # elongated words (eg loooooove)
 5. # punctuation mark
 6. # syntax errors
 7. # words in uppercase

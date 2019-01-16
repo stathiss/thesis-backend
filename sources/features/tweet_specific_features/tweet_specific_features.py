@@ -1,8 +1,9 @@
 import re
-from hunspell import Hunspell
-from sources.loaders.loaders import parse_dataset
 import emoji
 import string
+from hunspell import Hunspell
+from sources.loaders.loaders import parse_dataset
+import numpy as np
 
 
 def number_of_emojis(tweet):
@@ -32,7 +33,7 @@ def parse_tweet_specific_features(task, emotion, label):
     for tweet in tweets:
         current_feature = list()
         # 1. Length of tweet
-        current_feature.append(len(tweet))
+        # current_feature.append(len(tweet))
         # 2. Number of words
         current_feature.append(len(tweet.split()))
         # 3. Number of emojis
@@ -46,3 +47,5 @@ def parse_tweet_specific_features(task, emotion, label):
         # 7. words in uppercase
         current_feature.append(sum(1 for c in tweet if c.isupper()))
         features.append(current_feature)
+
+    return np.array(features)

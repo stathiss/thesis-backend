@@ -30,7 +30,7 @@ def deepmoji_vector(task, emotion, label):
 
     # print('Loading model from {}.'.format(PRETRAINED_PATH))
     model = deepmoji_feature_encoding(maxlen, PRETRAINED_PATH)
-    model.summary()
+    # model.summary()
 
     # print('Encoding texts..')
 
