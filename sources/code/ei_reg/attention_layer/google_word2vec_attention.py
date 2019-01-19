@@ -13,13 +13,14 @@ from gensim.models.keyedvectors import KeyedVectors
 
 # Keras and TensorFlow inputs
 from keras.models import Sequential
-from keras.layers import Bidirectional
+from keras.layers import Bidirectional, concatenate
 from keras.layers.embeddings import Embedding
 from keras.initializers import Constant
 from keras.layers.recurrent import LSTM
 from keras.layers.core import Dense, Dropout
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
+from keras.initializers import glorot_normal
 
 # My code inputs
 from sources.loaders.loaders import parse_dataset
@@ -102,23 +103,23 @@ def google_word2vec_attention_model(emotion):
                                input_length=pad_words))  # Adding Input Length
     google_model.layers[0].set_weights([embedding_matrix])
     google_model.add(Bidirectional(LSTM(300, return_sequences=True, dropout=0.25, recurrent_dropout=0.25)))
-    google_model.add(Attention(pad_words))
+    google_model.add(Attention(65))
     google_model.add(Dropout(0.5))
-    google_model.add(Dense(128, activation='relu'))
-    google_model.add(Dense(128, activation='relu'))
+    google_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Hidden Layers :
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Output Layer :
-    google_model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+    google_model.add(Dense(1, kernel_initializer=glorot_normal(seed=None), activation='sigmoid'))
 
     # Compile the network :
     print('Compiling the Model...')
-    google_model.compile(loss=pearson_correlation_loss,
+    google_model.compile(loss='mean_squared_error',
                          optimizer='adam',
                          metrics=['mae'])
 

@@ -65,7 +65,7 @@ def tweet_tokenizer(task, emotion, label):
 
 def tweet_tokenizer_words(task, emotion, label):
     tokenized_tweets = []
-    token = Tokenizer(normalize=2)
+    token = Tokenizer(normalize=1)
     tweets = parse_dataset(task, emotion, label)[1]
     print('length', len(tweets))
     for tweet in tweets:

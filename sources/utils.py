@@ -6,6 +6,25 @@ from keras import backend as K
 from keras.engine.topology import Layer
 from keras import initializers, regularizers, constraints
 import os
+import numpy as np
+
+
+def normalize_vectors(vectors):
+    normalized_vectors = []
+    normalized_variables = []
+    for x in range(len(vectors[0])):
+        temp_x = []
+        for line in range(len(vectors)):
+            temp_x.append(vectors[line][x])
+        mean = np.mean(temp_x)
+        std = np.std(temp_x)
+        normalized_variables.append([mean, std])
+    for line in vectors:
+        temp_x_normlized = []
+        for i in range(len(line)):
+            temp_x_normlized.append((line[i] - normalized_variables[i][0]) / normalized_variables[i][1])
+        normalized_vectors.append(temp_x_normlized)
+    return normalized_vectors, normalized_variables
 
 
 def string_to_float_or_int(a):
