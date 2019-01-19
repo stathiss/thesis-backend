@@ -44,9 +44,10 @@ vocab_dim = 118717
 maxlen = 100
 window_size = 12
 batch_size = 32
-n_epoch = 50
+n_epoch = 25
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
+activation = 'relu'
 
 log.info('source load')
 
@@ -172,21 +173,20 @@ def my_word2vec_model(emotion):
                              input_length=input_length))  # Adding Input Length
     lstm_model.add(LSTM(maxlen))
     lstm_model.add(Dropout(0.3))
-    lstm_model.add(Dense(128, kernel_initializer='normal', activation='sigmoid'))
+    lstm_model.add(Dense(128, activation='relu'))
+    lstm_model.add(Dense(128, activation='relu'))
 
     # The Hidden Layers :
-    lstm_model.add(Dense(256, kernel_initializer='normal', activation='sigmoid'))
-    lstm_model.add(Dense(256, kernel_initializer='normal', activation='sigmoid'))
-    lstm_model.add(Dense(256, kernel_initializer='normal', activation='sigmoid'))
+    lstm_model.add(Dense(256, activation='relu'))
+    lstm_model.add(Dense(256, activation='relu'))
+    lstm_model.add(Dense(256, activation='relu'))
+    lstm_model.add(Dense(256, activation='relu'))
 
     # The Output Layer :
     lstm_model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
-
     # Compile the network :
 
     print('Compiling the Model...')
-    optimizer = tf.train.RMSPropOptimizer(0.001)
-
     lstm_model.compile(loss=pearson_correlation_loss,
                        optimizer='adam',
                        metrics=['mae'])

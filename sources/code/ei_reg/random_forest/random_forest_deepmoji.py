@@ -17,12 +17,12 @@ def predict_random_forest__deepmoji(emotion):
     X = deepmoji_vector('EI-reg', emotion, 'train')
     with open('dumps/deepmoji_vector_' + emotion + '_train', 'wb') as fp:
         pickle.dump(X, fp)
-    y = parse_dataset('EI-reg', emotion, 'train_and_dev')[3]
+    y = parse_dataset('EI-reg', emotion, 'train')[3]
 
-    test_input = deepmoji_vector('EI-reg', emotion, 'gold-no-mystery')
+    test_input = deepmoji_vector('EI-reg', emotion, 'development')
     with open('dumps/deepmoji_vector_' + emotion + '_dev', 'wb') as fp:
         pickle.dump(test_input, fp)
-    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
+    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
     clf = RandomForestRegressor(bootstrap=bootstrap,
                                 max_depth=max_depth,
                                 max_features=max_features,

@@ -7,13 +7,11 @@ from sources.code.ei_reg.svr.svr_deepmoji import predict_svr_deepmoji
 from sources.code.ei_reg.attention_layer.google_word2vec_attention import google_word2vec_attention_model
 from sources.utils import ensemble_predictions, read_vectors_from_csv, run_lexicon_vectors
 
-predict_svr_deepmoji('sadness')
-predict_svr_deepmoji_and_features('sadness')
+predict_svr_deepmoji_and_features('joy', add_lexicons=True)
 # print(run_lexicon_predictions('./datasets/EI-reg/training_set/arff/EI-reg-En-anger-train.arff'))
 # print(map(float, read_vectors_from_csv('output.csv')[32][4:]))
 # predict_random_forest__deepmoji('fear')
-# my_word2vec_model('fear')
-# glove_model('fear')
+# my_word2vec_model('sadness')
 # google_word2vec_model('fear')
 # google_word2vec_attention_model('fear')
 
