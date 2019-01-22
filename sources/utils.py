@@ -79,12 +79,12 @@ def predictions_of_file(my_file):
 
 
 def ensemble_weights(my_list, index, powerset):
+    # TODO: Make it work
     if index == len(my_list) -1 and my_list[index] == 1.0:
         powerset.append(my_list)
         return powerset
     elif my_list[index] == 1.0:
         powerset.append()
-        my_list[index] == 0.0
         index += 1
     return powerset
 
