@@ -226,7 +226,7 @@ def run_lexicon_vectors(my_file):
           '-F "weka.filters.unsupervised.attribute.TweetToSentiStrengthFeatureVector ' \
           '-L /home/george/wekafiles/packages/AffectiveTweets/lexicons/SentiStrength/english -stemmer ' \
           'weka.core.stemmers.NullStemmer -stopwords-handler \\" weka.core.stopwords.Null \\" -I 2 -U ' \
-          '-tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer\\"" -i ' + my_file + ' -o output.arff'  # noqa
+          '-tokenizer \\" weka.core.tokenizers.TweetNLPTokenizer\\"" -i ' + my_file + ' -o output.arff'  # nopep8
 
     os.system(cmd)
     _ = subprocess.Popen(['java', '-Xmx4G', '-cp', './sources/features/weka/weka/weka.jar', 'weka.Run',
