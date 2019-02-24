@@ -28,3 +28,7 @@ ensemble_predictions(
     'development',
     'datasets/EI-reg/development_set/2018-EI-reg-En-fear-dev.txt')
 """
+
+
+def hello():
+    return True
