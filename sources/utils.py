@@ -9,7 +9,16 @@ import os
 import numpy as np
 
 
+def calculate_all_predictions(tweets):
+    return tweets
+
+
 def normalize_vectors(vectors):
+    """
+    takes vectors and normalizes them
+    :param vectors: Input vectors
+    :return: normalized_vectors
+    """
     normalized_vectors = []
     normalized_variables = []
     for x in range(len(vectors[0])):
