@@ -54,7 +54,7 @@ def hello():
             texts.append(full_tweet.encode('utf-8').strip())
             tweets.append({
                 'text': full_tweet,
-                'id': tweet.id,
+                'id': tweet.id_str,
                 'counter': counter,
                 'author': tweet.user.name,
                 'date': tweet.created_at})
