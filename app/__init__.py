@@ -1,13 +1,25 @@
 import re
 import tweepy
-import json
 import random
 from flask import Flask, jsonify, request
 from tweepy import OAuthHandler
 from sources.utils import write_predictions, calculate_all_predictions
+from mongokit import Connection, Document
 
 app = Flask(__name__)
 app.config.from_object('config')
+consumer_key = app.config['TWITTER_CONSUMER_KEY']
+consumer_secret = app.config['TWITTER_CONSUMER_SECRET']
+access_token = app.config['TWITTER_ACCESS_TOKEN']
+access_secret = app.config['TWITTER_ACCESS_SECRET']
+
+connection = Connection(app.config['MONGODB_HOST'],
+                        app.config['MONGODB_PORT'])
+
+auth = OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_secret)
+
+api = tweepy.API(auth)
 
 
 def tweet_to_full_text(tweet):
@@ -33,21 +45,13 @@ def tweet_to_full_text(tweet):
 
 
 @app.route('/', methods=["GET"])
-def hello():
+def get_predictions():
     hashtag = request.args.get('hashtag', '')
-
-    consumer_key = app.config['TWITTER_CONSUMER_KEY']
-    consumer_secret = app.config['TWITTER_CONSUMER_SECRET']
-    access_token = app.config['TWITTER_ACCESS_TOKEN']
-    access_secret = app.config['TWITTER_ACCESS_SECRET']
-
-    auth = OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_secret)
-
-    api = tweepy.API(auth)
-
-    trends = api.trends_place(1)
-    public_tweets = tweepy.Cursor(api.search, q='#' + hashtag + ' ', lang='en', count=200, tweet_mode='extended').items(200)
+    public_tweets = tweepy.Cursor(api.search,
+                                  q='#' + hashtag,
+                                  lang='en',
+                                  count=200,
+                                  tweet_mode='extended').items(200)
     tweets = []
     ids = []
     texts = []
@@ -82,7 +86,6 @@ def hello():
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])
     predictions = calculate_all_predictions(tweets)
     my_json = jsonify({
-        'trends': trends[0]['trends'],
         'tweets': tweets,
         'top': {
             'joy': {
@@ -105,4 +108,22 @@ def hello():
     })
     my_json.headers.add('Access-Control-Allow-Origin', '*')
     return my_json
-# Import the routes.
+
+
+@app.route('/trends', methods=["GET"])
+def get_trends():
+    collection = connection['tweet-ai'].hashtags
+    print(collection.find_one())
+    trends = api.trends_place(1, lang='en')[0]['trends']
+    english_trends = []
+    for trend in trends:
+        try:
+            trend['name'].encode('utf-8').decode('ascii')
+            english_trends.append(trend)
+        except UnicodeError:
+            print(trend['name'])
+    my_json = jsonify({
+        'trends': english_trends
+    })
+    my_json.headers.add('Access-Control-Allow-Origin', '*')
+    return my_json
