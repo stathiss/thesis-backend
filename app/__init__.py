@@ -1,9 +1,12 @@
 import re
 import tweepy
 import random
+import datetime
+import pymongo
+import numpy as np
 from flask import Flask, jsonify, request
 from tweepy import OAuthHandler
-from sources.utils import write_predictions, calculate_all_predictions
+from sources.utils import write_predictions, calculate_all_predictions, test_tweet
 from mongokit import Connection, Document
 
 app = Flask(__name__)
@@ -46,19 +49,28 @@ def tweet_to_full_text(tweet):
 
 @app.route('/', methods=["GET"])
 def get_predictions():
+    # Search for tweets with specific hashtag
     hashtag = request.args.get('hashtag', '')
     public_tweets = tweepy.Cursor(api.search,
-                                  q='#' + hashtag,
+                                  q=hashtag,
                                   lang='en',
                                   count=200,
                                   tweet_mode='extended').items(200)
+    # Add it to database if it does not exist
+    hashtags = connection['tweet-ai'].hashtags
+    result = hashtags.find_one({'hashtag': hashtag})
+    if not result:
+        hashtags.insert({'hashtag': hashtag,
+                         'createdAt': datetime.datetime.now(),
+                         'updatedAt': datetime.datetime.now()})
+    else:
+        hashtags.update({'hashtag': hashtag}, {'$set': {'updatedAt': datetime.datetime.now()}})
     tweets = []
     ids = []
     texts = []
     counter = 1
     for tweet in public_tweets:
         full_tweet = tweet_to_full_text(tweet._json)
-        # print(json.dumps(tweet._json, indent=2))
         if not any(d['text'] == full_tweet for d in tweets):
             ids.append(str(tweet.id))
             texts.append(full_tweet.encode('utf-8').strip())
@@ -70,40 +82,51 @@ def get_predictions():
                 'date': tweet.created_at,
                 'regression': {
                     'fear': random.random(),
-                    'joy': random.random(),
+                    'joy': random.random() * 3,
                     'anger': random.random(),
                     'sadness': random.random()},
-                'ordinal': {
-                    'fear': random.uniform(0, 3),
-                    'joy': random.uniform(0, 3),
-                    'anger': random.uniform(0, 3),
-                    'sadness': random.uniform(0, 3)
-                }})
+                })
             counter = counter + 1
             if counter > 100:
                 break
     write_predictions('test_tweets.txt',
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])
-    predictions = calculate_all_predictions(tweets)
+    tweets, top_tweets_indexes, averages, ordinal_class = calculate_all_predictions(tweets)
+    print(ordinal_class)
+    ids.append(0)
+    texts.append('Test')
+    tweets.append(test_tweet)
     my_json = jsonify({
+        'averages': {
+            'anger': np.round(averages[0], 2),
+            'fear': np.round(averages[1], 2),
+            'joy': np.round(averages[2], 2),
+            'sadness': np.round(averages[3], 2)
+        },
         'tweets': tweets,
         'top': {
-            'joy': {
-                'tweet': 'Hello Darkness my old friend',
-                'intensity': 0.76
+            'anger': {
+                'tweet': tweets[top_tweets_indexes[0]]['text'],
+                'intensity': tweets[top_tweets_indexes[0]]['regression']['anger']
             },
             'fear': {
-                'tweet': 'Hello Darkness my old friend',
-                'intensity': 0.76
+                'tweet': tweets[top_tweets_indexes[1]]['text'],
+                'intensity': tweets[top_tweets_indexes[1]]['regression']['fear']
+            },
+            'joy': {
+                'tweet': tweets[top_tweets_indexes[2]]['text'],
+                'intensity': tweets[top_tweets_indexes[2]]['regression']['joy']
             },
             'sadness': {
-                'tweet': 'Hello Darkness my old friend',
-                'intensity': 0.76
-            },
-            'anger': {
-                'tweet': 'Hello Darkness my old friend',
-                'intensity': 0.76
-            },
+                'tweet': tweets[top_tweets_indexes[3]]['text'],
+                'intensity': tweets[top_tweets_indexes[3]]['regression']['sadness']
+            }
+        },
+        'ordinal_class': {
+            'anger': ordinal_class[0],
+            'fear': ordinal_class[1],
+            'joy': ordinal_class[2],
+            'sadness': ordinal_class[3]
         }
     })
     my_json.headers.add('Access-Control-Allow-Origin', '*')
@@ -112,9 +135,7 @@ def get_predictions():
 
 @app.route('/trends', methods=["GET"])
 def get_trends():
-    collection = connection['tweet-ai'].hashtags
-    print(collection.find_one())
-    trends = api.trends_place(1, lang='en')[0]['trends']
+    trends = api.trends_place(1)[0]['trends']
     english_trends = []
     for trend in trends:
         try:
@@ -127,3 +148,18 @@ def get_trends():
     })
     my_json.headers.add('Access-Control-Allow-Origin', '*')
     return my_json
+
+
+@app.route('/searches', methods=["GET"])
+def get_searches():
+    hashtags = connection['tweet-ai'].hashtags
+    results = hashtags.find({}).sort('updatedAt', pymongo.DESCENDING).limit(15)
+    return_value = []
+    for result in results:
+        return_value.append(result['hashtag'])
+    my_json = jsonify({
+        'searches': return_value
+    })
+    my_json.headers.add('Access-Control-Allow-Origin', '*')
+    return my_json
+

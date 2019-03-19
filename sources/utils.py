@@ -1,16 +1,64 @@
+import os
 import csv
+import datetime
 import subprocess
+import numpy as np
 import tensorflow as tf
-from sources.loaders.loaders import parse_dataset
 from keras import backend as K
 from keras.engine.topology import Layer
 from keras import initializers, regularizers, constraints
-import os
-import numpy as np
+from sources.loaders.loaders import parse_dataset
+from sources.code.predict.deepmoji_predict import predict_svr_deepmoji_live
+
+
+test_tweet = {
+        'text': 'Test',
+        'id': 0,
+        'counter': 101,
+        'author': 'George',
+        'date': datetime.datetime.now(),
+        'regression': {
+            'fear': 1.0,
+            'joy': 1.0,
+            'anger': 1.0,
+            'sadness': 1.0},
+        }
+
+
+def get_ordinal(predictions, thresholds):
+    no, low, moderate, high = 0, 0, 0, 0
+    for pr in predictions:
+        if pr < thresholds[0]:
+            no += 1
+        elif pr < thresholds[1]:
+            low += 1
+        elif pr < thresholds[2]:
+            moderate += 1
+        else:
+            high += 1
+    return [no, low, moderate, high]
 
 
 def calculate_all_predictions(tweets):
-    return tweets
+    predictions_anger, predictions_fear,  predictions_joy, predictions_sadness = predict_svr_deepmoji_live()
+    for i in range(len(tweets)):
+        tweets[i]['regression']['anger'] = predictions_anger[i]
+        tweets[i]['regression']['fear'] = predictions_fear[i]
+        tweets[i]['regression']['joy'] = predictions_joy[i]
+        tweets[i]['regression']['sadness'] = predictions_sadness[i]
+    max_anger_index = np.argmax(predictions_anger)
+    max_fear_index = np.argmax(predictions_fear)
+    max_joy_index = np.argmax(predictions_joy)
+    max_sadness_index = np.argmax(predictions_sadness)
+    return tweets, [max_anger_index, max_fear_index, max_joy_index, max_sadness_index],\
+        [np.average(predictions_anger),
+         np.average(predictions_fear),
+         np.average(predictions_joy),
+         np.average(predictions_sadness)],\
+        [get_ordinal(predictions_anger, [0.3, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_fear, [0.3, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_joy, [0.3, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_sadness, [0.3, 0.5, 0.6, 1.0])]
 
 
 def normalize_vectors(vectors):

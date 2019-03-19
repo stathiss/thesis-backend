@@ -1,4 +1,3 @@
-from sources.code.ei_reg.embeddings.my_word2vec_lstm import my_word2vec_model
 from sources.code.ei_reg.embeddings.glove_vectors import glove_model
 from sources.code.ei_reg.embeddings.google_word2vec import google_word2vec_model
 from sources.code.ei_reg.random_forest.random_forest_deepmoji import predict_random_forest__deepmoji
@@ -6,8 +5,9 @@ from sources.code.ei_reg.svr.svr_deepmoji_and_features import predict_svr_deepmo
 from sources.code.ei_reg.svr.svr_deepmoji import predict_svr_deepmoji
 from sources.code.ei_reg.attention_layer.google_word2vec_attention import google_word2vec_attention_model
 from sources.utils import ensemble_predictions, read_vectors_from_csv, run_lexicon_vectors
+from sources.code.predict.deepmoji_predict import predict_svr_deepmoji_live
 
-predict_svr_deepmoji_and_features('joy', add_lexicons=True)
+predict_svr_deepmoji_live('anger')
 # print(run_lexicon_predictions('./datasets/EI-reg/training_set/arff/EI-reg-En-anger-train.arff'))
 # print(map(float, read_vectors_from_csv('output.csv')[32][4:]))
 # predict_random_forest__deepmoji('fear')
@@ -28,7 +28,3 @@ ensemble_predictions(
     'development',
     'datasets/EI-reg/development_set/2018-EI-reg-En-fear-dev.txt')
 """
-
-
-def hello():
-    return True
