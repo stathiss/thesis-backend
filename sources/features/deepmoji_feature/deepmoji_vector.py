@@ -8,6 +8,7 @@ from __future__ import division
 import json
 import pickle
 import numpy as np
+import keras
 from deepmoji.sentence_tokenizer import SentenceTokenizer
 from deepmoji.model_def import deepmoji_feature_encoding
 from deepmoji.global_variables import PRETRAINED_PATH, VOCAB_PATH
@@ -45,7 +46,7 @@ def deepmoji_vector(task, emotion, label):
     # Now you could visualize the encodings to see differences,
     # run a logistic regression classifier on top,
     # or basically anything you'd like to do.
-    del(model)
+    keras.backend.clear_session()
     return encoding
 
 
