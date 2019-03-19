@@ -21,18 +21,19 @@ def deepmoji_vector(task, emotion, label):
     maxlen = 30
     batch_size = 64
 
-    # print('Tokenizing using dictionary from {}'.format(VOCAB_PATH))
+    print('Tokenizing using dictionary from {}'.format(VOCAB_PATH))
     with open(VOCAB_PATH, 'r') as f:
         vocabulary = json.load(f)
     st = SentenceTokenizer(vocabulary, maxlen)
-    # print('st', st)
+    print('st', st)
     tokenized, a, b = st.tokenize_sentences(TEST_SENTENCES)
 
-    # print('Loading model from {}.'.format(PRETRAINED_PATH))
+    print('Loading model from {}.'.format(PRETRAINED_PATH))
     model = deepmoji_feature_encoding(maxlen, PRETRAINED_PATH)
+
     # model.summary()
 
-    # print('Encoding texts..')
+    print('Encoding texts..')
 
     encoding = model.predict(tokenized)
 
@@ -44,6 +45,7 @@ def deepmoji_vector(task, emotion, label):
     # Now you could visualize the encodings to see differences,
     # run a logistic regression classifier on top,
     # or basically anything you'd like to do.
+    del(model)
     return encoding
 
 

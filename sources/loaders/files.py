@@ -31,7 +31,10 @@ def find_path(task, emotion, label):
     label = 'training'
     input_path = 'datasets/EI-reg/training_set/EI-reg-En-fear-train.txt'
     """
-    if label == 'gold' or label == 'gold-no-mystery':
+    if label == 'live':
+        input_path = 'test_tweets.txt'
+        return input_path
+    elif label == 'gold' or label == 'gold-no-mystery':
         input_path = config.DATA_DIR + '/gold-labels/' + task + '/' + find_file(task, emotion, label)
         return input_path
     elif label == 'train':

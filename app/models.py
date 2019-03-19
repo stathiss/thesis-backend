@@ -10,14 +10,13 @@ def max_length(length):
     return validate
 
 
-class User(Document):
+class Hashtags(Document):
     structure = {
-        'name': unicode,
-        'email': unicode,
+        'hashtag': unicode,
+        'createdAt': unicode,
+        'updatedAt': unicode,
     }
     validators = {
-        'name': max_length(50),
-        'email': max_length(120)
     }
     use_dot_notation = True
 
