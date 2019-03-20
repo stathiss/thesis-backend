@@ -59,7 +59,7 @@ def get_predictions():
     # Add it to database if it does not exist
     hashtags = connection['tweet-ai'].hashtags
     result = hashtags.find_one({'hashtag': hashtag})
-    if not result:
+    if not result and hashtag and hashtag != '#':
         hashtags.insert({'hashtag': hashtag,
                          'createdAt': datetime.datetime.now(),
                          'updatedAt': datetime.datetime.now()})
@@ -107,19 +107,23 @@ def get_predictions():
         'top': {
             'anger': {
                 'tweet': tweets[top_tweets_indexes[0]]['text'],
-                'intensity': tweets[top_tweets_indexes[0]]['regression']['anger']
+                'intensity': tweets[top_tweets_indexes[0]]['regression']['anger'],
+                'id': tweets[top_tweets_indexes[0]]['id']
             },
             'fear': {
                 'tweet': tweets[top_tweets_indexes[1]]['text'],
-                'intensity': tweets[top_tweets_indexes[1]]['regression']['fear']
+                'intensity': tweets[top_tweets_indexes[1]]['regression']['fear'],
+                'id': tweets[top_tweets_indexes[1]]['id']
             },
             'joy': {
                 'tweet': tweets[top_tweets_indexes[2]]['text'],
-                'intensity': tweets[top_tweets_indexes[2]]['regression']['joy']
+                'intensity': tweets[top_tweets_indexes[2]]['regression']['joy'],
+                'id': tweets[top_tweets_indexes[2]]['id']
             },
             'sadness': {
                 'tweet': tweets[top_tweets_indexes[3]]['text'],
-                'intensity': tweets[top_tweets_indexes[3]]['regression']['sadness']
+                'intensity': tweets[top_tweets_indexes[3]]['regression']['sadness'],
+                'id': tweets[top_tweets_indexes[3]]['id']
             }
         },
         'ordinal_class': {
@@ -158,7 +162,7 @@ def get_searches():
     for result in results:
         return_value.append(result['hashtag'])
     my_json = jsonify({
-        'searches': return_value
+        'searches': [{'name': value} for value in return_value]
     })
     my_json.headers.add('Access-Control-Allow-Origin', '*')
     return my_json
