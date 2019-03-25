@@ -20,13 +20,18 @@ def parse_ei_reg(my_file):
 
 def parse_ei_oc(my_file):
     """
-    :param file:
+    :param my_file:
     :return: ids, tweets, emotion and score of EI-oc given file
     """
-    ids = []
-    tweet = []
-    emotion = []
-    score = []
+    with open(my_file, 'r') as fd:
+        data = fd.readlines()
+    data = [x.strip() for x in data][1:]
+    data = [x.split('\t') for x in data]
+    ids = [x[0] for x in data]
+    tweet = [x[1] for x in data]
+    emotion = [x[2] for x in data]
+    score = [int(x[3].split(':')[0]) if x[3] != 'NONE' else None for x in data]
+    fd.close()
     return ids, tweet, emotion, score
 
 

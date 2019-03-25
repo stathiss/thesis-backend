@@ -10,10 +10,10 @@ import numpy as np
 
 def predict_svr_deepmoji_and_features(emotion, add_lexicons=False, add_features=False):
     # Load datasets
-    X = deepmoji_vector('EI-reg', emotion, 'train')
-    y = parse_dataset('EI-reg', emotion, 'train')[3]
+    X = deepmoji_vector('EI-reg', emotion, 'train-and-dev')
+    y = parse_dataset('EI-reg', emotion, 'train-and-dev')[3]
 
-    test_input = deepmoji_vector('EI-reg', emotion, 'development')
+    test_input = deepmoji_vector('EI-reg', emotion, 'gold-no-mystery')
 
     # Append all of them
     if add_lexicons:

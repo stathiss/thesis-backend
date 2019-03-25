@@ -47,7 +47,7 @@ pad_words = 65
 maxlen = 300
 window_size = 12
 batch_size = 32
-n_epoch = 25
+n_epoch = 15
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
 
@@ -57,11 +57,11 @@ log.info('source load')
 def google_word2vec_attention_model(emotion):
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'development')
-    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
+    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
+    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
+    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
+    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
+    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
 
     print('Tokenising...')
     t = Tokenizer(lower=True)
@@ -119,9 +119,7 @@ def google_word2vec_attention_model(emotion):
 
     # Compile the network :
     print('Compiling the Model...')
-    google_model.compile(loss='mean_squared_error',
-                         optimizer='adam',
-                         metrics=['mae'])
+    google_model.compile(loss='mean_squared_error', optimizer='adam', metrics=[pearson_correlation_loss])
 
     print('Summary...')
     google_model.summary()
@@ -141,4 +139,4 @@ def google_word2vec_attention_model(emotion):
     file_name = './dumps/EI-reg_en_' + emotion + '_dev_google_attention_vectors.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))

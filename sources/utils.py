@@ -25,6 +25,26 @@ test_tweet = {
         }
 
 
+def regression_to_ordinal(my_file, emotion, label, thresholds):
+    """
+
+    :rtype: object
+    """
+    predictions = predictions_of_file(my_file)
+    ordinal_c = []
+    for pr in predictions:
+        if pr < thresholds[0]:
+            ordinal_c.append('0: no ' + emotion + ' can be inferred')
+        elif pr < thresholds[1]:
+            ordinal_c.append('1: low amount of ' + emotion + ' can be inferred')
+        elif pr < thresholds[2]:
+            ordinal_c.append('2: moderate amount of ' + emotion + ' can be inferred')
+        else:
+            ordinal_c.append('3: high amount of ' + emotion + ' can be inferred')
+    dataset = parse_dataset('EI-reg', emotion, label)
+    write_predictions('dumps/oc_file.txt', dataset, ordinal_c)
+
+
 def get_ordinal(predictions, thresholds):
     no, low, moderate, high = 0, 0, 0, 0
     for pr in predictions:
@@ -55,10 +75,10 @@ def calculate_all_predictions(tweets):
          np.average(predictions_fear),
          np.average(predictions_joy),
          np.average(predictions_sadness)],\
-        [get_ordinal(predictions_anger, [0.3, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_fear, [0.3, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_joy, [0.3, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_sadness, [0.3, 0.5, 0.6, 1.0])]
+        [get_ordinal(predictions_anger, [0.4, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_fear, [0.4, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_joy, [0.4, 0.5, 0.6, 1.0]),
+         get_ordinal(predictions_sadness, [0.4, 0.5, 0.6, 1.0])]
 
 
 def normalize_vectors(vectors):
@@ -100,7 +120,6 @@ def get_pearson_correlation(task_type, prediction_file, gold_file):
     """
     output = subprocess.Popen(['python', 'sources/evaluation/evaluate.py', task_type, prediction_file, gold_file],
                               stdout=subprocess.PIPE).communicate()[0]
-    print(output)
     total = float(output.split('\n')[0].split('\t')[1])
     range_half_to_one = float(output.split('\n')[1].split('\t')[1])
     return total, range_half_to_one
