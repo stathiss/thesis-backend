@@ -2,9 +2,7 @@ import multiprocessing
 import logging
 import sys
 import numpy
-from numpy import array
-from numpy import asarray
-from numpy import zeros
+from numpy import array, asarray, zeros
 
 # TensorFlow and Keras inputs
 from keras.preprocessing.text import Tokenizer
@@ -12,6 +10,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.models import Sequential
 from keras.layers.embeddings import Embedding
 from keras.layers import Bidirectional, Dense, Dropout, LSTM
+from keras.initializers import glorot_normal
 
 # My code inputs
 from sources.loaders.loaders import parse_dataset
@@ -33,7 +32,7 @@ log.addHandler(ch)
 
 maxlen = 100
 pad_words = 65
-n_epoch = 25
+n_epoch = 15
 input_length = 100
 window_size = 12
 batch_size = 64
@@ -46,11 +45,11 @@ log.info('source load')
 def glove_model(emotion):
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'development')
-    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
+    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
+    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
+    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
+    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
+    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
 
     print('Tokenising...')
     t = Tokenizer()
@@ -94,23 +93,21 @@ def glove_model(emotion):
     model_glove.layers[0].set_weights([embedding_matrix])
     model_glove.add(Bidirectional(LSTM(300)))
     model_glove.add(Dropout(0.5))
-    model_glove.add(Dense(128, activation='relu'))
-    model_glove.add(Dense(128, activation='relu'))
+    model_glove.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    model_glove.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Hidden Layers :
-    model_glove.add(Dense(256, activation='relu'))
-    model_glove.add(Dense(256, activation='relu'))
-    model_glove.add(Dense(256, activation='relu'))
-    model_glove.add(Dense(256, activation='relu'))
+    model_glove.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    model_glove.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    model_glove.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    model_glove.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Output Layer :
-    model_glove.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+    model_glove.add(Dense(1, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # Compile the network :
     print('Compiling the Model...')
-    model_glove.compile(loss=pearson_correlation_loss,
-                        optimizer='adam',
-                        metrics=['mae'])
+    model_glove.compile(loss='mean_squared_error', optimizer='adam', metrics=[pearson_correlation_loss])
 
     print('Summary...')
     model_glove.summary()
@@ -133,4 +130,4 @@ def glove_model(emotion):
     file_name = './dumps/EI-reg_en_' + emotion + '_test_glove_vectors_' + str(maxlen) + '.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))

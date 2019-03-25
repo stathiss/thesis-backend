@@ -19,6 +19,7 @@ from keras.initializers import Constant
 from keras.layers.recurrent import LSTM
 from keras.layers.core import Dense, Dropout
 from keras.preprocessing.text import Tokenizer
+from keras.initializers import glorot_normal
 from keras.preprocessing.sequence import pad_sequences
 
 # My code inputs
@@ -103,30 +104,30 @@ def google_word2vec_model(emotion):
     google_model.layers[0].set_weights([embedding_matrix])
     google_model.add(Bidirectional(LSTM(300)))
     google_model.add(Dropout(0.5))
-    google_model.add(Dense(128, activation='relu'))
-    google_model.add(Dense(128, activation='relu'))
+    google_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Hidden Layers :
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
-    google_model.add(Dense(256, activation='relu'))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
+    google_model.add(Dense(256, activation='relu', kernel_initializer=glorot_normal(seed=None)))
 
     # The Output Layer :
-    google_model.add(Dense(1, kernel_initializer='normal', activation='sigmoid'))
+    google_model.add(Dense(1, kernel_initializer=glorot_normal(seed=None), activation='sigmoid'))
 
     # Compile the network :
     print('Compiling the Model...')
-    google_model.compile(loss=pearson_correlation_loss,
+    google_model.compile(loss='mean_squared_error',
                          optimizer='adam',
-                         metrics=['mae'])
+                         metrics=['mae', pearson_correlation_loss])
 
     print('Summary...')
     google_model.summary()
     print("Train...")
     google_model.fit(padded_train, y_train,
                      batch_size=32,
-                     epochs=n_epoch,
+                     epochs=5,
                      validation_split=0.1,
                      validation_data=(padded_dev, y_test))
 
@@ -139,4 +140,5 @@ def google_word2vec_model(emotion):
     file_name = './dumps/EI-reg_en_' + emotion + '_test_google_vectors.txt'
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
+    del google_model
     print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))

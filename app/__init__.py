@@ -6,7 +6,7 @@ import pymongo
 import numpy as np
 from flask import Flask, jsonify, request
 from tweepy import OAuthHandler
-from sources.utils import write_predictions, calculate_all_predictions, test_tweet
+from sources.utils import write_predictions, calculate_all_predictions
 from mongokit import Connection, Document
 
 app = Flask(__name__)
@@ -93,9 +93,6 @@ def get_predictions():
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])
     tweets, top_tweets_indexes, averages, ordinal_class = calculate_all_predictions(tweets)
     print(ordinal_class)
-    ids.append(0)
-    texts.append('Test')
-    tweets.append(test_tweet)
     my_json = jsonify({
         'averages': {
             'anger': np.round(averages[0], 2),
