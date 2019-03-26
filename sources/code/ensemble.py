@@ -28,11 +28,11 @@ def genetic_algorithm(emotion, list_of_files):
 
     def get_pearson(weights):
 
-        golden = predictions_of_file(find_path('EI-reg', emotion, 'gold-no-mystery'))
+        real_golden = predictions_of_file(find_path('EI-reg', emotion, 'gold-no-mystery'))
         predict_golden = make_combined_predictions(weights, predictions)
         if np.std(predict_golden) == 0 or np.std(predict_golden) == 0 or sum(weights) >= 1:
             return 0,
-        return stats.pearsonr(predict_golden, golden)[0],
+        return stats.pearsonr(predict_golden, real_golden)[0],
 
     creator.create("FitnessMax", base.Fitness, weights=(1.0,))
     creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -62,9 +62,3 @@ def genetic_algorithm(emotion, list_of_files):
     for top in top10:
         print(top)
         print(get_pearson(top))
-
-    golden = predictions_of_file(find_path('EI-reg', emotion, 'gold-no-mystery'))
-
-    print(stats.pearsonr(predictions[0], golden)[0])
-    print(stats.pearsonr(predictions[1], golden)[0])
-    print(stats.pearsonr(make_combined_predictions([0.3, 0.7, 0.1, 0.1], predictions), golden)[0])

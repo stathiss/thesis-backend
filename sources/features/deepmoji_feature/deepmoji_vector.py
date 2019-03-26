@@ -41,8 +41,6 @@ def deepmoji_vector(task, emotion, label):
     # print('First 5 dimensions for sentence: {}'.format(TEST_SENTENCES[0]))
     # print(encoding[0])
     # print(len(encoding[0]))
-    with open('dumps/encoding', 'wb') as fp:
-        pickle.dump(encoding, fp)
     # Now you could visualize the encodings to see differences,
     # run a logistic regression classifier on top,
     # or basically anything you'd like to do.
