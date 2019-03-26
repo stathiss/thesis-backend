@@ -51,6 +51,7 @@ def tweet_to_full_text(tweet):
 def get_predictions():
     # Search for tweets with specific hashtag
     hashtag = request.args.get('hashtag', '')
+    max_tweets = int(request.args.get('number', '100'))
     public_tweets = tweepy.Cursor(api.search,
                                   q=hashtag,
                                   lang='en',
@@ -87,7 +88,7 @@ def get_predictions():
                     'sadness': random.random()},
                 })
             counter = counter + 1
-            if counter > 100:
+            if counter > max_tweets:
                 break
     write_predictions('test_tweets.txt',
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])

@@ -8,10 +8,12 @@ from sources.code.ei_reg.attention_layer.glove_vectors_attention import glove_at
 from sources.code.predict.deepmoji_predict import predict_svr_deepmoji_live
 from sources.code.ensemble import genetic_algorithm
 from sources.loaders.loaders import parse_dataset
-from sources.utils import ensemble_predictions, read_vectors_from_csv, run_lexicon_vectors, write_predictions, regression_to_ordinal
+from sources.utils import ensemble_predictions, read_vectors_from_csv, run_lexicon_vectors, write_predictions, regression_to_ordinal, get_second_biggest_index
 from sources.code.ei_oc.mapping import genetic_oc_algorithm
 
-genetic_oc_algorithm('fear', 'dumps/EI-reg_en_fear_test_svr.txt')
+print(get_second_biggest_index([1, 22, 3, 40, 20]))
+
+# genetic_oc_algorithm('fear', 'dumps/EI-reg_en_fear_test_svr.txt')
 
 # regression_to_ordinal('dumps/EI-reg_en_fear_test_svr.txt', 'fear', 'gold-no-mystery', [0.6, 0.7, 0.8, 1.0])
 # glove_attention_model('anger')

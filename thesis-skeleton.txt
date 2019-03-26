@@ -1,0 +1,22 @@
+Abstract
+
+Introduction
+
+Task presentation
+
+Related  + previous work
+
+Architecture
+
+Theory Background + GA
+
+Dataset + Experiments + Results
+
+App Implementation
+
+Conclusion
+
+
+
+
+Select number of tweets + fonts in ordinal classification

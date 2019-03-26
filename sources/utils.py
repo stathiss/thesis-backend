@@ -25,9 +25,17 @@ test_tweet = {
         }
 
 
+def get_second_biggest_index(my_list):
+    max_index = np.argmax(my_list)
+    second_index = 0 if max_index != 0 else 1
+    for i in range(len(my_list)):
+        if my_list[i] > my_list[second_index] and i != max_index:
+            second_index = i
+    return second_index
+
+
 def regression_to_ordinal(my_file, emotion, label, thresholds):
     """
-
     :rtype: object
     """
     predictions = predictions_of_file(my_file)
