@@ -3,6 +3,7 @@ import numpy as np
 import logging
 import sys
 import multiprocessing
+from scipy import stats
 
 # NumPy Imports
 from numpy import array
@@ -26,7 +27,7 @@ from keras.initializers import glorot_normal
 from sources.loaders.loaders import parse_dataset
 from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss, Attention
+from sources.utils import predictions_of_file, write_predictions, pearson_correlation_loss, Attention
 
 
 np.random.seed(1500)  # For Reproducibility
@@ -47,7 +48,7 @@ pad_words = 65
 maxlen = 300
 window_size = 12
 batch_size = 32
-n_epoch = 15
+n_epoch = 10
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
 
@@ -55,13 +56,15 @@ log.info('source load')
 
 
 def google_word2vec_attention_model(emotion):
+    train_file = 'train'
+    test_file = 'development'
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
-    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
+    X_train = tweet_tokenizer('EI-reg', emotion, train_file)
+    y_train = array(parse_dataset('EI-reg', emotion, train_file)[3])
+    X_test = tweet_tokenizer('EI-reg', emotion, test_file)
+    y_test = array(parse_dataset('EI-reg', emotion, test_file)[3])
+    dev_dataset = parse_dataset('EI-reg', emotion, test_file)
 
     print('Tokenising...')
     t = Tokenizer(lower=True)
@@ -119,7 +122,7 @@ def google_word2vec_attention_model(emotion):
 
     # Compile the network :
     print('Compiling the Model...')
-    google_model.compile(loss='mean_squared_error', optimizer='adam', metrics=[pearson_correlation_loss])
+    google_model.compile(loss='mean_absolute_error', optimizer='adam', metrics=[pearson_correlation_loss])
 
     print('Summary...')
     google_model.summary()
@@ -136,7 +139,11 @@ def google_word2vec_attention_model(emotion):
 
     predictions = google_model.predict(padded_dev)
     predictions = [prediction[0] for prediction in predictions]
-    file_name = './dumps/EI-reg_en_' + emotion + '_dev_google_attention_vectors.txt'
+    real_golden = predictions_of_file(find_path('EI-reg', emotion, test_file))
+    # Write Predictions
+    file_name = "./dumps/EI-reg/" + test_file + "/BiLSTM+Att/EI-reg_en_" + emotion + "_google.txt"
+
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))
+
+    print(stats.pearsonr(predictions, real_golden)[0])

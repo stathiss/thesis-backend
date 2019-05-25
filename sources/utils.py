@@ -1,3 +1,5 @@
+from __future__ import division
+
 import os
 import csv
 import datetime
@@ -83,10 +85,10 @@ def calculate_all_predictions(tweets):
          np.average(predictions_fear),
          np.average(predictions_joy),
          np.average(predictions_sadness)],\
-        [get_ordinal(predictions_anger, [0.4, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_fear, [0.4, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_joy, [0.4, 0.5, 0.6, 1.0]),
-         get_ordinal(predictions_sadness, [0.4, 0.5, 0.6, 1.0])]
+        [get_ordinal(predictions_anger, [0.3, 0.4, 0.5, 1.0]),
+         get_ordinal(predictions_fear, [0.3, 0.4, 0.5, 1.0]),
+         get_ordinal(predictions_joy, [0.3, 0.4, 0.5, 1.0]),
+         get_ordinal(predictions_sadness, [0.3, 0.4, 0.5, 1.0])]
 
 
 def normalize_vectors(vectors):
@@ -102,7 +104,7 @@ def normalize_vectors(vectors):
         for line in range(len(vectors)):
             temp_x.append(vectors[line][x])
         mean = np.mean(temp_x)
-        std = np.std(temp_x)
+        std = np.std(temp_x) if np.std(temp_x) else 1
         normalized_variables.append([mean, std])
     for line in vectors:
         temp_x_normlized = []
@@ -148,6 +150,36 @@ def write_predictions(file_name, dataset, prediction):
         # write line to output file
         out_file.write(dataset[0][line] + '\t' + dataset[1][line] + '\t'
                    + dataset[2][line] + '\t' + str(prediction[line]))
+        out_file.write("\n")
+    out_file.close()
+
+
+def write_predictions_e_c(file_name, dataset, prediction):
+    """
+    :param file_name: Input file
+    :param dataset: Dataset (eg file of dev real values)
+    :param prediction: Array of predictions you have to
+    :return:
+    """
+
+    out_file = open(file_name, "w")
+    out_file.write('ID\tTweet\tanger\tanticipation\tdisgust\tfear\tjoy\tlove\toptimism\tpessimism\tsadness\tsurprise\ttrust\n')
+
+    for line in range(len(prediction)):
+        # write line to output file
+        out_file.write(dataset[0][line] + '\t' + dataset[1][line]\
+                       + '\t' + str(prediction[line][0])
+                       + '\t' + str(prediction[line][1])
+                       + '\t' + str(prediction[line][2])
+                       + '\t' + str(prediction[line][3])
+                       + '\t' + str(prediction[line][4])
+                       + '\t' + str(prediction[line][5])
+                       + '\t' + str(prediction[line][6])
+                       + '\t' + str(prediction[line][7])
+                       + '\t' + str(prediction[line][8])
+                       + '\t' + str(prediction[line][9])
+                       + '\t' + str(prediction[line][10])
+                       )
         out_file.write("\n")
     out_file.close()
 
@@ -292,7 +324,7 @@ def read_vectors_from_csv(my_file):
         for row in reader:
             return_list.append(row)
         for line in return_list[1:]:
-            return_list_values.append(map(string_to_float_or_int, line[4:]))
+            return_list_values.append(map(string_to_float_or_int, line[13:]))
         return return_list_values
 
 

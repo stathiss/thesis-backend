@@ -3,6 +3,7 @@ import numpy as np
 import logging
 import sys
 import multiprocessing
+from scipy import stats
 
 # NumPy Imports
 from numpy import array
@@ -26,8 +27,8 @@ from keras.preprocessing.sequence import pad_sequences
 from sources.loaders.loaders import parse_dataset
 from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
-
+from sources.utils import pearson_correlation_loss
+from sources.utils import predictions_of_file, write_predictions
 
 np.random.seed(1500)  # For Reproducibility
 dict_and_embs = 'dict_end_embs'
@@ -42,12 +43,11 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 vocab_dim = 118717
-num_words = 20000
 pad_words = 65
 maxlen = 300
 window_size = 12
 batch_size = 32
-n_epoch = 25
+n_epoch = 10
 input_length = 100
 cpu_count = multiprocessing.cpu_count()
 
@@ -55,23 +55,26 @@ log.info('source load')
 
 
 def google_word2vec_model(emotion):
+    train_file = 'train_and_dev'
+    test_file = 'gold-no-mystery'
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'development')
-    y_test = array(parse_dataset('EI-reg', emotion, 'development')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'development')
+    x_train = tweet_tokenizer('EI-reg', emotion, train_file)
+    y_train = array(parse_dataset('EI-reg', emotion, train_file)[3])
+    x_test = tweet_tokenizer('EI-reg', emotion, test_file)
+    y_test = array(parse_dataset('EI-reg', emotion, test_file)[3])
+
+    dev_dataset = parse_dataset('EI-reg', emotion, test_file)
 
     print('Tokenising...')
     t = Tokenizer(lower=True)
-    t.fit_on_texts(X_train + X_test)
+    t.fit_on_texts(x_train + x_test)
     vocab_size = len(t.word_counts) + 1
     num_words = vocab_size
 
     print('Integer encoding...')
-    encoded_train = t.texts_to_sequences(X_train)
-    encoded_dev = t.texts_to_sequences(X_test)
+    encoded_train = t.texts_to_sequences(x_train)
+    encoded_dev = t.texts_to_sequences(x_test)
 
     print('Padding documents in length of {} words...'.format(pad_words))
     padded_train = pad_sequences(encoded_train, maxlen=pad_words)
@@ -92,7 +95,7 @@ def google_word2vec_model(emotion):
         except KeyError:
             embedding_matrix[i] = zeros(maxlen)
 
-    del (word_vectors)
+    del word_vectors
 
     print('Defining a Simple Keras Model...')
     google_model = Sequential()  # or Graph
@@ -127,7 +130,7 @@ def google_word2vec_model(emotion):
     print("Train...")
     google_model.fit(padded_train, y_train,
                      batch_size=32,
-                     epochs=5,
+                     epochs=n_epoch,
                      validation_split=0.1,
                      validation_data=(padded_dev, y_test))
 
@@ -137,8 +140,11 @@ def google_word2vec_model(emotion):
 
     predictions = google_model.predict(padded_dev)
     predictions = [prediction[0] for prediction in predictions]
-    file_name = './dumps/EI-reg_en_' + emotion + '_test_google_vectors.txt'
+    real_golden = predictions_of_file(find_path('EI-reg', emotion, test_file))
+
+    # Write Predictions
+    file_name = "./dumps/EI-reg/" + test_file + "/BiLSTM/EI-reg_en_" + emotion + "_google.txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    del google_model
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'development')))
+
+    print(stats.pearsonr(predictions, real_golden)[0])

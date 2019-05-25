@@ -11,14 +11,25 @@ def find_file(task, emotion, label):
     input_file = 'EI-reg-En-fear-train.txt'
     """
     if label == 'development':
-        input_file = '2018-' + task + '-En-' + emotion + '-dev' + '.txt'
+        if not emotion:
+            input_file = '2018-' + task + '-En-dev' + '.txt'
+        else:
+            input_file = '2018-' + task + '-En-' + emotion + '-dev' + '.txt'
     elif label == 'test':
-        input_file = '2018-' + task + '-En-' + emotion + '-test' + '.txt'
+        if not emotion:
+            input_file = '2018-' + task + '-En-test' + '.txt'
+        else:
+            input_file = '2018-' + task + '-En-' + emotion + '-test' + '.txt'
     elif label == 'gold' or label == 'gold-no-mystery':
-        input_file = '2018-' + task + '-En-' + emotion + '-test-' + label + '.txt'
+        if not emotion:
+            input_file = '2018-E-c-En-test-gold.txt'
+        else:
+            input_file = '2018-' + task + '-En-' + emotion + '-test-' + label + '.txt'
     else:
-        input_file = task + '-En-' + emotion + '-' + label + '.txt'
-
+        if not emotion:
+            input_file = '2018-' + task + '-En-' + label + '.txt'
+        else:
+            input_file = task + '-En-' + emotion + '-' + label + '.txt'
     return input_file
 
 

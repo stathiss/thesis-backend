@@ -1,6 +1,6 @@
 EI-reg:
 
-Baseline SVR unigram model ✘
+Baseline SVR unigram model ✔ (already exists from the contest)
 Machine Learning SVR ✔
 Machine Learning Random Forest ✔
 Deep Learning LSTM with my embeddings ✔ 
@@ -9,8 +9,26 @@ Deep Learning LSTM with google embeddings ✔
 Deep Learning LSTM with attention layer and google embeddings ✔
 
 Deep Learning LSTM with attention layer and glove embeddings ✘
-Deep Learning LSTM with attention layer and my embeddings ✘
+Deep Learning LSTM with attention layer and my embeddings ✘ (will not do)
 Features from Lexicons (Affective tweets package) ✔
 Feature Extraction ✔
 Ensemble predictions with specified weights ✔
-Ensemble predictions with genetic algorithm ✘
+Ensemble predictions with genetic algorithm ✔
+
+
+
+to do:
+
+Finish Architecture chapter,
+Ensemble more than four predictions for EI-reg
+Machine Learning multi classification
+Intro Chapter
+From EI-reg to EI-c
+Conclusion Chapter
+Summary Greek + English
+Glossary Page
+Thank Page
+
+
+
+See if I can preload vectors in the post api call for app.
