@@ -3,6 +3,7 @@ import logging
 import sys
 import numpy
 from numpy import array, asarray, zeros
+from scipy import stats
 
 # TensorFlow and Keras inputs
 from keras.preprocessing.text import Tokenizer
@@ -16,7 +17,7 @@ from keras.initializers import glorot_normal
 from sources.loaders.loaders import parse_dataset
 from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
+from sources.utils import predictions_of_file, pearson_correlation_loss, write_predictions
 
 
 numpy.random.seed(1500)  # For Reproducibility
@@ -30,9 +31,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-maxlen = 100
 pad_words = 65
-n_epoch = 15
+n_epoch = 10
 input_length = 100
 window_size = 12
 batch_size = 64
@@ -42,23 +42,26 @@ cpu_count = multiprocessing.cpu_count()
 log.info('source load')
 
 
-def glove_model(emotion):
+def glove_model(emotion, maxlen):
+    train_file = 'train_and_dev'
+    test_file = 'gold-no-mystery'
 
     print('Load data...')
-    X_train = tweet_tokenizer('EI-reg', emotion, 'train_and_dev')
-    y_train = array(parse_dataset('EI-reg', emotion, 'train_and_dev')[3])
-    X_test = tweet_tokenizer('EI-reg', emotion, 'gold-no-mystery')
-    y_test = array(parse_dataset('EI-reg', emotion, 'gold-no-mystery')[3])
-    dev_dataset = parse_dataset('EI-reg', emotion, 'gold-no-mystery')
+    x_train = tweet_tokenizer('EI-reg', emotion, train_file)
+    y_train = array(parse_dataset('EI-reg', emotion, train_file)[3])
+    x_test = tweet_tokenizer('EI-reg', emotion, test_file)
+    y_test = array(parse_dataset('EI-reg', emotion, test_file)[3])
+
+    dev_dataset = parse_dataset('EI-reg', emotion, test_file)
 
     print('Tokenising...')
     t = Tokenizer()
-    t.fit_on_texts(X_train + X_test)
+    t.fit_on_texts(x_train + x_test)
     vocab_size = len(t.word_counts) + 1
 
     print('Integer encoding...')
-    encoded_train = t.texts_to_sequences(X_train)
-    encoded_dev = t.texts_to_sequences(X_test)
+    encoded_train = t.texts_to_sequences(x_train)
+    encoded_dev = t.texts_to_sequences(x_test)
 
     print('Padding documents in length of {} words...'.format(pad_words))
     padded_train = pad_sequences(encoded_train, maxlen=pad_words)
@@ -122,12 +125,16 @@ def glove_model(emotion):
     print("Evaluate...")
     score = model_glove.evaluate(padded_dev, y_test, batch_size=batch_size)
     print('Test score:', (score[0] - 1) * (-1), score[1])
-
+    # Calculate Predictions
     predictions = model_glove.predict(padded_dev)
 
     print('Pearson Correlation...')
     predictions = [prediction[0] for prediction in predictions]
-    file_name = './dumps/EI-reg_en_' + emotion + '_test_glove_vectors_' + str(maxlen) + '.txt'
+
+    # Write Predictions
+    file_name = "./dumps/EI-reg/" + test_file + "/BiLSTM/EI-reg_en_" + emotion + "_glove_" + str(maxlen) + ".txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))
+
+    real_golden = predictions_of_file(find_path('EI-reg', emotion, test_file))
+    print(stats.pearsonr(predictions, real_golden)[0])

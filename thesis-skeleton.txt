@@ -1,22 +1,22 @@
-Abstract
+Abstract ✘
+English Abstract ✘
 
-Introduction
+Introduction ✘
+Task presentation ✘
 
-Task presentation
+Related ✔
+previous work ✔
 
-Related  + previous work
+Architecture ✔
 
-Architecture
+Theory Background ✔
+GA ✔
 
-Theory Background + GA
+Dataset ✔
+Experiments ✔
+Results ✘
 
-Dataset + Experiments + Results
+App Implementation ✔
 
-App Implementation
+Conclusion ✘
 
-Conclusion
-
-
-
-
-Select number of tweets + fonts in ordinal classification

@@ -1,18 +1,25 @@
 from __future__ import division
 
-from sklearn.svm import SVR
-from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 from sources.features.tweet_specific_features.tweet_specific_features import parse_tweet_specific_features
+from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
 from sources.loaders.loaders import parse_dataset
 from sources.loaders.files import find_path
 from sources.utils import get_pearson_correlation, write_predictions, run_lexicon_vectors, read_vectors_from_csv,\
     normalize_vectors
-import numpy as np
 
 
-def predict_svr_deepmoji_and_features(emotion, add_lexicons=False, add_features=False):
+def predict_random_forest_deepmoji_and_features(emotion, add_lexicons=False, add_features=False):
+    bootstrap = True
+    max_depth = 10
+    max_features = 'sqrt'
+    min_samples_leaf = 4
+    min_samples_split = 2
+    n_estimators = 600
     train_file = 'train_and_dev'
     test_file = 'gold-no-mystery'
+
     # Load datasets
     X = deepmoji_vector('EI-reg', emotion, train_file)
     y = parse_dataset('EI-reg', emotion, train_file)[3]
@@ -47,11 +54,16 @@ def predict_svr_deepmoji_and_features(emotion, add_lexicons=False, add_features=
     print(X[0])
     dev_dataset = parse_dataset('EI-reg', emotion, test_file)
 
-    clf = SVR(kernel='rbf', C=10, gamma=0.0001, epsilon=0.05)
+    clf = RandomForestRegressor(bootstrap=bootstrap,
+                                max_depth=max_depth,
+                                max_features=max_features,
+                                min_samples_leaf=min_samples_leaf,
+                                min_samples_split=min_samples_split,
+                                n_estimators=n_estimators)
     clf.fit(X, y)
     predictions = clf.predict(test_input)
-
-    file_name = "./dumps/EI-reg/" + test_file + "/DeepMoji/EI-reg_en_" + emotion + ("_lexicons" if add_lexicons else "") + ("_features" if add_features else "") + "_svr.txt"
+    file_name = "./dumps/EI-reg/" + test_file + "/DeepMoji/EI-reg_en_" + emotion + (
+        "_lexicons" if add_lexicons else "") + ("_features" if add_features else "") + "_random_forest.txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, test_file)))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))

@@ -1,3 +1,4 @@
+from __future__ import division
 import re
 import emoji
 import string
@@ -33,7 +34,7 @@ def parse_tweet_specific_features(task, emotion, label):
     for tweet in tweets:
         current_feature = list()
         # 1. Length of tweet
-        # current_feature.append(len(tweet))
+        current_feature.append(len(tweet))
         # 2. Number of words
         current_feature.append(len(tweet.split()))
         # 3. Number of emojis
@@ -47,5 +48,13 @@ def parse_tweet_specific_features(task, emotion, label):
         # 7. words in uppercase
         current_feature.append(sum(1 for c in tweet if c.isupper()))
         features.append(current_feature)
+    max_features = [ 0 for _ in range(len(features[0]))]
+    for i in range(len(features[0])):
+        for j in range(len(features)):
+            if features[j][i] > max_features[i]:
+                max_features[i] = features[j][i]
 
+    for feature in features:
+        for i in range(len(features[0])):
+            feature[i] = feature[0] / max_features[i]
     return np.array(features)

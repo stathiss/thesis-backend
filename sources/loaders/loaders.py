@@ -37,14 +37,19 @@ def parse_ei_oc(my_file):
 
 def parse_e_c(my_file):
     """
-    :param file:
+    :param my_file:
     :return: ids, tweets, emotion and score of E-c given file
     """
-    ids = []
-    tweet = []
-    emotion = []
-    score = []
-    return ids, tweet, emotion, score
+    with open(my_file, 'r') as fd:
+        data = fd.readlines()
+    data = [x.strip() for x in data][1:]
+    data = [x.split('\t') for x in data]
+    ids = [x[0] for x in data]
+    tweet = [x[1] for x in data]
+    print(data[0])
+    score = [[int(x[2]), int(x[3]), int(x[4]), int(x[5]), int(x[6]), int(x[7]), int(x[8]), int(x[9]), int(x[10]), int(x[11]), int(x[12])] if x[2] != 'NONE' else None for x in data]
+    fd.close()
+    return ids, tweet, None, score
 
 
 def parse_dataset(task, emotion, label):

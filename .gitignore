@@ -31,3 +31,9 @@ sources/features/pretrained_vectors/*
 # Java outputs
 output.arff
 output.csv
+
+# Tweets downloaded
+app/tweets.txt
+
+# test_tweets
+test_tweets.txt

@@ -26,7 +26,7 @@ from keras.initializers import glorot_normal
 from sources.loaders.loaders import parse_dataset
 from sources.loaders.files import find_path
 from sources.preprocessing.preprocessing import tweet_tokenizer
-from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss
+from sources.utils import get_pearson_correlation, write_predictions, pearson_correlation_loss, Attention
 
 
 np.random.seed(1500)  # For Reproducibility
@@ -110,9 +110,9 @@ def create_dictionaries(train=None, test=None, model=None):
         print('No data provided...')
 
 
-def my_word2vec_model(emotion):
-    train_file = 'train_and_dev'
-    test_file = 'gold-no-mystery'
+def my_word2vec_attention_model(emotion):
+    train_file = 'train'
+    test_file = 'development'
 
     X_train = tweet_tokenizer('EI-reg', emotion, train_file)
     y_train = parse_dataset('EI-reg', emotion, train_file)[3]
@@ -172,7 +172,8 @@ def my_word2vec_model(emotion):
                              embeddings_initializer=Constant(embedding_weights),
                              input_length=input_length))  # Adding Input Length
     lstm_model.layers[0].set_weights([embedding_weights])
-    lstm_model.add(Bidirectional(LSTM(300)))
+    lstm_model.add(Bidirectional(LSTM(300, return_sequences=True, dropout=0.25, recurrent_dropout=0.25)))
+    lstm_model.add(Attention(100))
     lstm_model.add(Dropout(0.5))
     lstm_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
     lstm_model.add(Dense(128, activation='relu', kernel_initializer=glorot_normal(seed=None)))
@@ -197,7 +198,7 @@ def my_word2vec_model(emotion):
     print("Train...")
     lstm_model.fit(X_train, y_train,
                    batch_size=32,
-                   epochs=5,
+                   epochs=n_epoch,
                    validation_split=0.1,
                    validation_data=(X_test, y_test))
 
@@ -208,7 +209,7 @@ def my_word2vec_model(emotion):
     predictions = lstm_model.predict(X_test)
     predictions = [prediction[0] for prediction in predictions]
 
-    file_name = "./dumps/EI-reg/" + test_file + "/BiLSTM/EI-reg_en_" + emotion + "_my_model.txt"
+    file_name = "./dumps/EI-reg/" + test_file + "/BiLSTM+Att/EI-reg_en_" + emotion + "_my_model.txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
 
