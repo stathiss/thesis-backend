@@ -19,7 +19,7 @@ def make_combined_predictions(weights, predictions):
     return final_predictions
 
 
-def genetic_algorithm(emotion, list_of_files):
+def genetic_algorithm(emotion, list_of_files, test_file):
 
     predictions = []
     for the_file in list_of_files:
@@ -28,9 +28,9 @@ def genetic_algorithm(emotion, list_of_files):
 
     def get_pearson(weights):
 
-        real_golden = predictions_of_file(find_path('EI-reg', emotion, 'gold-no-mystery'))
+        real_golden = predictions_of_file(find_path('EI-reg', emotion, test_file))
         predict_golden = make_combined_predictions(weights, predictions)
-        if np.std(predict_golden) == 0 or np.std(predict_golden) == 0 or sum(weights) >= 1:
+        if np.std(predict_golden) == 0 or np.std(predict_golden) == 0:
             return 0,
         return stats.pearsonr(predict_golden, real_golden)[0],
 
@@ -62,6 +62,10 @@ def genetic_algorithm(emotion, list_of_files):
     for top in top10:
         print(list(map(lambda x: x/sum(top), top)))
         print(get_pearson(top))
+
+    x = [0.24647325800175182, 0.7377476334341374, 0.0, 0.015779108564110564]
+    print(x)
+    print(get_pearson(x))
 
 
 def ensemble_e_c(list_of_files):

@@ -28,21 +28,21 @@ api = tweepy.API(auth)
 def tweet_to_full_text(tweet):
     if 'retweeted_status' in tweet:
         if 'full_text' in tweet['retweeted_status']:
-            text = re.sub(r"http\S+", "", tweet['retweeted_status']['full_text'])
+            text = re.sub(r"http\S+", "(link)", tweet['retweeted_status']['full_text'])
             text = re.sub(r"@\S+", "", text)
             return text.replace('\n', '')
         else:
-            text = re.sub(r"http\S+", "", tweet['retweeted_status']['text'])
+            text = re.sub(r"http\S+", "(link)", tweet['retweeted_status']['text'])
             text = re.sub(r"@\S+", "", text)
             return text.replace('\n', '')
 
     else:
             if 'full_text' in tweet:
-                text = re.sub(r"http\S+", "", tweet['full_text'])
+                text = re.sub(r"http\S+", "(link)", tweet['full_text'])
                 text = re.sub(r"@\S+", "", text)
                 return text.replace('\n', '')
             else:
-                text = re.sub(r"http\S+", "", tweet['text'])
+                text = re.sub(r"http\S+", "(link)", tweet['text'])
                 text = re.sub(r"@\S+", "", text)
                 return text.replace('\n', '')
 
@@ -92,9 +92,10 @@ def get_predictions():
                 break
     write_predictions('test_tweets.txt',
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])
-    tweets, top_tweets_indexes, averages, ordinal_class = calculate_all_predictions(tweets)
+    tweets, top_tweets_indexes, averages, ordinal_class, e_c = calculate_all_predictions(tweets)
     print(ordinal_class)
     my_json = jsonify({
+        'e_c': e_c,
         'averages': {
             'anger': np.round(averages[0], 2),
             'fear': np.round(averages[1], 2),

@@ -111,8 +111,8 @@ def create_dictionaries(train=None, test=None, model=None):
 
 
 def my_word2vec_model(emotion):
-    train_file = 'train_and_dev'
-    test_file = 'gold-no-mystery'
+    train_file = 'train'
+    test_file = 'development'
 
     X_train = tweet_tokenizer('EI-reg', emotion, train_file)
     y_train = parse_dataset('EI-reg', emotion, train_file)[3]

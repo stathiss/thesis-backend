@@ -3,7 +3,7 @@ import random
 from scipy import stats
 from deap import creator, base, tools, algorithms
 from sources.loaders.files import find_path
-from sources.utils import predictions_of_file, write_predictions, get_pearson_correlation
+from sources.utils import predictions_of_file, predictions_of_file_oc, write_predictions, get_pearson_correlation
 from sources.loaders.loaders import parse_dataset
 
 
@@ -16,30 +16,27 @@ def make_oc_predictions(weights, predictions, emotion):
     ordinal_c = []
     for pr in predictions:
         if pr < weights[0]:
-            ordinal_c.append('0: no ' + emotion + ' can be inferred')
+            ordinal_c.append(0)
         elif pr < weights[1]:
-            ordinal_c.append('1: low amount of ' + emotion + ' can be inferred')
+            ordinal_c.append(1)
         elif pr < weights[2]:
-            ordinal_c.append('2: moderate amount of ' + emotion + ' can be inferred')
+            ordinal_c.append(2)
         else:
-            ordinal_c.append('3: high amount of ' + emotion + ' can be inferred')
+            ordinal_c.append(3)
     return ordinal_c
 
 
-def genetic_oc_algorithm(emotion, the_file):
-
+def genetic_oc_algorithm(emotion, the_file, test_file):
+    print(emotion, the_file)
     predictions = predictions_of_file(the_file)
+    real_golden = predictions_of_file_oc(find_path('EI-oc', emotion, test_file))
 
     def get_pearson(weights):
 
-        dev_dataset = parse_dataset('EI-oc', emotion, 'gold-no-mystery')
         predict_golden = make_oc_predictions(weights, predictions, emotion)
-        if np.std(predict_golden) == 0 or np.std(predict_golden) == 0 or sum(weights) >= 1:
+        if np.std(predict_golden) == 0 or np.std(predict_golden) == 0:
             return 0,
-        file_name = "./dumps/test_oc.txt"
-        write_predictions(file_name, dev_dataset, predict_golden)
-        print(get_pearson_correlation('2', file_name, find_path('EI-oc', emotion, 'gold-no-mystery'))[0])
-        return get_pearson_correlation('2', file_name, find_path('EI-oc', emotion, 'gold-no-mystery'))[0],
+        return stats.pearsonr(predict_golden, real_golden)[0],
 
     creator.create("FitnessMax", base.Fitness, weights=(1.0,))
     creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -67,5 +64,9 @@ def genetic_oc_algorithm(emotion, the_file):
     top10 = tools.selBest(population, k=10)
 
     for top in top10:
-        print(top)
+        max_weight = max(top)
+        print([i / max_weight for i in sorted(top)])
         print(get_pearson(top))
+    x = [0.4604160277647052, 0.4973198187147662, 0.5295677584064779, 1.0]
+    print(x)
+    print(get_pearson(x))

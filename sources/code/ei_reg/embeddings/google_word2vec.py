@@ -55,8 +55,8 @@ log.info('source load')
 
 
 def google_word2vec_model(emotion):
-    train_file = 'train_and_dev'
-    test_file = 'gold-no-mystery'
+    train_file = 'train'
+    test_file = 'development'
 
     print('Load data...')
     x_train = tweet_tokenizer('EI-reg', emotion, train_file)
