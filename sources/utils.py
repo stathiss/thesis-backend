@@ -70,7 +70,12 @@ def get_ordinal(predictions, thresholds):
 
 
 def calculate_all_predictions(tweets):
-    predictions_anger, predictions_fear,  predictions_joy, predictions_sadness = predict_svr_deepmoji_live()
+    (predictions_anger,
+     predictions_fear,
+     predictions_joy,
+     predictions_sadness,
+     predictions_e_c
+     ) = predict_svr_deepmoji_live()
     for i in range(len(tweets)):
         tweets[i]['regression']['anger'] = predictions_anger[i]
         tweets[i]['regression']['fear'] = predictions_fear[i]
@@ -80,6 +85,8 @@ def calculate_all_predictions(tweets):
     max_fear_index = np.argmax(predictions_fear)
     max_joy_index = np.argmax(predictions_joy)
     max_sadness_index = np.argmax(predictions_sadness)
+    e_c = [sum([predictions_e_c[j][i] for j in range(len(predictions_e_c))]) for i in range(11)]
+
     return tweets, [max_anger_index, max_fear_index, max_joy_index, max_sadness_index],\
         [np.average(predictions_anger),
          np.average(predictions_fear),
@@ -88,7 +95,8 @@ def calculate_all_predictions(tweets):
         [get_ordinal(predictions_anger, [0.3, 0.4, 0.5, 1.0]),
          get_ordinal(predictions_fear, [0.3, 0.4, 0.5, 1.0]),
          get_ordinal(predictions_joy, [0.3, 0.4, 0.5, 1.0]),
-         get_ordinal(predictions_sadness, [0.3, 0.4, 0.5, 1.0])]
+         get_ordinal(predictions_sadness, [0.3, 0.4, 0.5, 1.0])],\
+        e_c
 
 
 def normalize_vectors(vectors):
@@ -190,6 +198,16 @@ def predictions_of_file(my_file):
     data = [x.strip() for x in data][1:]
     data = [x.split('\t') for x in data]
     score = [float(x[3]) for x in data]
+    fd.close()
+    return score
+
+
+def predictions_of_file_oc(my_file):
+    with open(my_file, 'r') as fd:
+        data = fd.readlines()
+    data = [x.strip() for x in data][1:]
+    data = [x.split('\t') for x in data]
+    score = [int(x[3].split(':')[0]) for x in data]
     fd.close()
     return score
 

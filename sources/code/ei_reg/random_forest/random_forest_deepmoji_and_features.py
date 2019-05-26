@@ -17,8 +17,9 @@ def predict_random_forest_deepmoji_and_features(emotion, add_lexicons=False, add
     min_samples_leaf = 4
     min_samples_split = 2
     n_estimators = 600
-    train_file = 'train_and_dev'
-    test_file = 'gold-no-mystery'
+
+    train_file = 'train'
+    test_file = 'development'
 
     # Load datasets
     X = deepmoji_vector('EI-reg', emotion, train_file)
@@ -29,12 +30,12 @@ def predict_random_forest_deepmoji_and_features(emotion, add_lexicons=False, add
     # Append all of them
     if add_lexicons:
         # Load weka lexicon features
-        run_lexicon_vectors('./datasets/EI-reg/train_and_dev_set/arff/EI-reg-En-' + str(emotion) + '-train-dev.arff')
+        run_lexicon_vectors('./datasets/EI-reg/training_set/arff/EI-reg-En-' + str(emotion) + '-train.arff')
         X_lexicon_extension = read_vectors_from_csv('output.csv')
         print('xxxxx', len(X_lexicon_extension))
         X_lexicon_extension_variables = normalize_vectors(X_lexicon_extension)[1]
         X_lexicon_extension = normalize_vectors(X_lexicon_extension)[0]
-        run_lexicon_vectors('./datasets/EI-reg/test_set/arff/2018-EI-reg-En-' + str(emotion) + '-gold.arff')
+        run_lexicon_vectors('./datasets/EI-reg/development_set/arff/2018-EI-reg-En-' + str(emotion) + '-dev.arff')
         test_input_lexicon_extension = read_vectors_from_csv('output.csv')
         for i in range(len(test_input_lexicon_extension[0])):
             for line in test_input_lexicon_extension:
@@ -66,4 +67,4 @@ def predict_random_forest_deepmoji_and_features(emotion, add_lexicons=False, add
         "_lexicons" if add_lexicons else "") + ("_features" if add_features else "") + "_random_forest.txt"
     write_predictions(file_name, dev_dataset, predictions)
     print(file_name)
-    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, 'gold-no-mystery')))
+    print(get_pearson_correlation('1', file_name, find_path('EI-reg', emotion, test_file)))
