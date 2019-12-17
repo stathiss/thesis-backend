@@ -17,7 +17,7 @@ datasets/*
 *.xlsx#
 
 # DeepMoji Feature
-sources/features/DeepMoji-master/*
+# sources/features/DeepMoji-master/*
 
 # Weka Feature
 sources/features/weka/*
