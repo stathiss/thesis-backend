@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from sources.features.tweetokenize.tokenizer import Tokenizer
 # noinspection PyUnresolvedReferences
-from hunspell import Hunspell
+from sources.features.hunspell.hunspell import Hunspell
 from sources.loaders.loaders import parse_dataset
 import emoji
 
