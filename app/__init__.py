@@ -57,7 +57,7 @@ def get_predictions():
                                   lang='en',
                                   count=200,
                                   tweet_mode='extended').items(200)
-
+    
     # Add it to database if it does not exist
     hashtags = connection['tweet-ai'].hashtags
     result = hashtags.find_one({'hashtag': hashtag})

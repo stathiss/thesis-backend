@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tweetokenize import Tokenizer
+from sources.features.tweetokenize.tokenizer import Tokenizer
 # noinspection PyUnresolvedReferences
 from hunspell import Hunspell
 from sources.loaders.loaders import parse_dataset
