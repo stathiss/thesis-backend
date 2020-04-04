@@ -17,6 +17,15 @@ from sources.utils import ensemble_predictions, read_vectors_from_csv, run_lexic
 from sources.code.ei_oc.mapping import genetic_oc_algorithm
 
 
+
+
+predict_svr_deepmoji('anger')
+predict_svr_deepmoji('fear')
+predict_svr_deepmoji('joy')
+predict_svr_deepmoji('sadness')
+
+
+
 """
 
 genetic_algorithm('sadness', ['dumps/EI-reg/gold-no-mystery/DeepMoji/EI-reg_en_sadness_features_svr.txt',
@@ -36,13 +45,13 @@ genetic_algorithm('sadness', ['dumps/EI-reg/development/DeepMoji/EI-reg_en_sadne
 
 
 
-"""
+
 
 genetic_oc_algorithm('anger',
                      'dumps/EI-reg/gold-no-mystery/DeepMoji/EI-reg_en_anger_lexicons_features_random_forest.txt',
                      'gold')
 
-
+"""
 # my_word2vec_attention_model('fear')
 # my_word2vec_attention_model('joy')
 # my_word2vec_attention_model('sadness')

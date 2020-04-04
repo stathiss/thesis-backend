@@ -9,9 +9,9 @@ import json
 import pickle
 import numpy as np
 import keras
-from deepmoji.sentence_tokenizer import SentenceTokenizer
-from deepmoji.model_def import deepmoji_feature_encoding
-from deepmoji.global_variables import PRETRAINED_PATH, VOCAB_PATH
+from sources.features.deepmoji_master.deepmoji.sentence_tokenizer import SentenceTokenizer
+from sources.features.deepmoji_master.deepmoji.model_def import deepmoji_feature_encoding
+from sources.features.deepmoji_master.deepmoji.global_variables import PRETRAINED_PATH, VOCAB_PATH
 from sources.preprocessing.preprocessing import tweet_tokenizer
 
 
