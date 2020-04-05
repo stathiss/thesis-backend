@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from sources.features.tweetokenize.tokenizer import Tokenizer
 # noinspection PyUnresolvedReferences
-from sources.features.hunspell.hunspell import Hunspell
+from sources.features.hunspell import hunspell
 from sources.loaders.loaders import parse_dataset
 import emoji
 
@@ -31,7 +31,7 @@ def emoji_to_description(word):
 def spell_check(tweet):
     words = 0
     mistakes = 0
-    h = Hunspell()
+    h = hunspell.Hunspell()
     print('spell check')
     for word in tweet:
         if word.isalpha() and word.islower():
