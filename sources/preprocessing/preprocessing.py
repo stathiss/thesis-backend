@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from sources.features.tweetokenize.tokenizer import Tokenizer
 # noinspection PyUnresolvedReferences
-from sources.features.hunspell import hunspell
 from sources.loaders.loaders import parse_dataset
 import emoji
 
@@ -28,6 +27,7 @@ def emoji_to_description(word):
         return [word]
 
 
+"""
 def spell_check(tweet):
     words = 0
     mistakes = 0
@@ -43,6 +43,7 @@ def spell_check(tweet):
                 # spell = list(map(lambda x: x.lower(), spell))
                 # spell_check.extend(spell)
     print(words, mistakes, mistakes/float(words) if words != 0 else None)
+"""
 
 
 def tweet_tokenizer(task, emotion, label):
