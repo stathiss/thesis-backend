@@ -2,27 +2,34 @@ import re
 import tweepy
 import random
 import datetime
-import pymongo
+import mongoengine as me
+import flask_mongoengine as fme
 import numpy as np
 from flask import Flask, jsonify, request
 from tweepy import OAuthHandler
 from sources.utils import write_predictions, calculate_all_predictions
-from mongokit import Connection, Document
+
 
 app = Flask(__name__)
+
 app.config.from_object('config')
 consumer_key = app.config['TWITTER_CONSUMER_KEY']
 consumer_secret = app.config['TWITTER_CONSUMER_SECRET']
 access_token = app.config['TWITTER_ACCESS_TOKEN']
 access_secret = app.config['TWITTER_ACCESS_SECRET']
 
-connection = Connection(app.config['MONGODB_HOST'],
-                        app.config['MONGODB_PORT'])
-
 auth = OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 
 api = tweepy.API(auth)
+
+db = fme.MongoEngine(app)
+
+
+class Hashtags(fme.Document):
+    updatedAt = me.DateField()
+    createdAt = me.DateField()
+    hashtag = me.StringField()
 
 
 def tweet_to_full_text(tweet):
@@ -59,14 +66,13 @@ def get_predictions():
                                   tweet_mode='extended').items(200)
 
     # Add it to database if it does not exist
-    hashtags = connection['tweet-ai'].hashtags
-    result = hashtags.find_one({'hashtag': hashtag})
+    result = Hashtags.objects(hashtag=hashtag)
     if not result and hashtag and hashtag != '#':
-        hashtags.insert({'hashtag': hashtag,
-                         'createdAt': datetime.datetime.now(),
-                         'updatedAt': datetime.datetime.now()})
+        Hashtags(hashtag=hashtag,
+                 createdAt=datetime.datetime.now(),
+                 updatedAt=datetime.datetime.now()).save()
     else:
-        hashtags.update({'hashtag': hashtag}, {'$set': {'updatedAt': datetime.datetime.now()}})
+        result[0].update(set__updatedAt=datetime.datetime.now())
     tweets = []
     ids = []
     texts = []
@@ -95,7 +101,6 @@ def get_predictions():
     write_predictions('test_tweets.txt',
                       [ids, texts, ['emotion' for _ in range(len(ids))]], [0 for _ in range(len(ids))])
     tweets, top_tweets_indexes, averages, ordinal_class, e_c = calculate_all_predictions(tweets)
-    print(ordinal_class)
     my_json = jsonify({
         'e_c': e_c,
         'averages': {
@@ -147,7 +152,7 @@ def get_trends():
             trend['name'].encode('utf-8').decode('ascii')
             english_trends.append(trend)
         except UnicodeError:
-            print(trend['name'])
+            continue
     my_json = jsonify({
         'trends': english_trends
     })
@@ -157,11 +162,11 @@ def get_trends():
 
 @app.route('/searches', methods=["GET"])
 def get_searches():
-    hashtags = connection['tweet-ai'].hashtags
-    results = hashtags.find({}).sort('updatedAt', pymongo.DESCENDING).limit(15)
+    hashtags = Hashtags.objects().order_by('updatedAt').limit(10)
+    results = hashtags
     return_value = []
     for result in results:
-        return_value.append(result['hashtag'])
+        return_value.append(result.hashtag)
     my_json = jsonify({
         'searches': [{'name': value} for value in return_value]
     })
