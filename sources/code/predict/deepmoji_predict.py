@@ -1,10 +1,11 @@
 import numpy as np
-import pickle
 from sources.features.deepmoji_feature.deepmoji_vector import deepmoji_vector
+import cPickle as pickle
+
+test_input = deepmoji_vector('EI-reg', 'emotion', 'live')
 
 
 def predict_svr_deepmoji_live():
-    test_input = deepmoji_vector('EI-reg', 'emotion', 'live')
 
     with open('dumps/svr_deepmoji_anger', 'rb') as fp:
         clf_anger = pickle.load(fp)
