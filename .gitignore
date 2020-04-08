@@ -34,6 +34,3 @@ output.csv
 
 # Tweets downloaded
 app/tweets.txt
-
-# test_tweets
-test_tweets.txt
