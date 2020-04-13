@@ -114,22 +114,26 @@ def get_predictions():
             'anger': {
                 'tweet': tweets[top_tweets_indexes[0]]['text'],
                 'intensity': tweets[top_tweets_indexes[0]]['regression']['anger'],
-                'id': tweets[top_tweets_indexes[0]]['id']
+                'id': tweets[top_tweets_indexes[0]]['id'],
+                'screen_name': tweets[top_tweets_indexes[0]]['screen_name']
             },
             'fear': {
                 'tweet': tweets[top_tweets_indexes[1]]['text'],
                 'intensity': tweets[top_tweets_indexes[1]]['regression']['fear'],
-                'id': tweets[top_tweets_indexes[1]]['id']
+                'id': tweets[top_tweets_indexes[1]]['id'],
+                'screen_name': tweets[top_tweets_indexes[1]]['screen_name']
             },
             'joy': {
                 'tweet': tweets[top_tweets_indexes[2]]['text'],
                 'intensity': tweets[top_tweets_indexes[2]]['regression']['joy'],
-                'id': tweets[top_tweets_indexes[2]]['id']
+                'id': tweets[top_tweets_indexes[2]]['id'],
+                'screen_name': tweets[top_tweets_indexes[2]]['screen_name']
             },
             'sadness': {
                 'tweet': tweets[top_tweets_indexes[3]]['text'],
                 'intensity': tweets[top_tweets_indexes[3]]['regression']['sadness'],
-                'id': tweets[top_tweets_indexes[3]]['id']
+                'id': tweets[top_tweets_indexes[3]]['id'],
+                'screen_name': tweets[top_tweets_indexes[3]]['screen_name']
             }
         },
         'ordinal_class': {
