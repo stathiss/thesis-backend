@@ -34,3 +34,6 @@ output.csv
 
 # Tweets downloaded
 app/tweets.txt
+
+# Test tweets
+test_tweets.txt
